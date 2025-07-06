@@ -337,47 +337,44 @@
 
                 const promptBuilder = promptCookbook[tool.id] || promptCookbook['default'];
                 const finalPrompt = promptBuilder(inputValue, tool.title, voiceProfile);
-              try {
-    const promptBuilder = promptCookbook[tool.id] || promptCookbook['default'];
-    const finalPrompt = promptBuilder(inputValue, tool.title, voiceProfile);
+                try {
+                    const chatHistory = [{ role: "user", parts: [{ text: finalPrompt }] }];
+                    const payload = { contents: chatHistory };
+                    const apiKey = ""; 
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                    
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
 
-    const secureApiUrl = `/.netlify/functions/generate`;
-    
-    const response = await fetch(secureApiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: finalPrompt })
-    });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `API Error: ${response.statusText}`);
-    }
-    
-    const result = await response.json();
-    
-    if (result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
-        const aiResult = result.candidates[0].content.parts[0].text;
-        setOutputValue(aiResult);
-        addXp(10);
-        if (activeProjectId) {
-            addGenerationToProject(activeProjectId, {
-                toolId: tool.id,
-                toolTitle: tool.title,
-                input: inputValue,
-                output: aiResult,
-                timestamp: new Date().toISOString()
-            });
-        }
-    } else {
-        throw new Error("Unexpected API response format. Please try again.");
-    }
-} catch (err) {
-    setError(`An error occurred: ${err.message}`);
-    console.error(err);
-} finally {
-    setTimeout(() => setIsGenerating(false), 2500);
-}
+                    if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+                    
+                    const result = await response.json();
+                    
+                    if (result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
+                        const aiResult = result.candidates[0].content.parts[0].text;
+                        setOutputValue(aiResult);
+                        addXp(10);
+                        if (activeProjectId) {
+                            addGenerationToProject(activeProjectId, {
+                                toolId: tool.id,
+                                toolTitle: tool.title,
+                                input: inputValue,
+                                output: aiResult,
+                                timestamp: new Date().toISOString()
+                            });
+                        }
+                    } else {
+                        throw new Error("Unexpected API response. Please try again.");
+                    }
+                } catch (err) {
+                    setError(`An error occurred: ${err.message}`);
+                    console.error(err);
+                } finally {
+                    setTimeout(() => setIsGenerating(false), 2500);
+                }
             };
             
             const handleCopy = () => {
@@ -683,7 +680,7 @@
         );
 
         const App = () => {
-            const [appLaunched, setAppLaunched] = useState(false);
+            const { appLaunched, setAppLaunched } = useContext(AppContext);
             
             useEffect(() => {
                 const timer = setTimeout(() => lucide.createIcons(), 0);
@@ -697,20 +694,14 @@
                         <div className="orb orb-2"></div>
                         <div className="orb orb-3"></div>
                     </div>
-                    <AppProvider>
-                        <AppContext.Consumer>
-                            {({ appLaunched, setAppLaunched }) => (
-                                appLaunched ? <MainApp /> : <LandingPage onEnterApp={() => setAppLaunched(true)} />
-                            )}
-                        </AppContext.Consumer>
-                    </AppProvider>
+                    {appLaunched ? <MainApp /> : <LandingPage onEnterApp={() => setAppLaunched(true)} />}
                 </div>
             );
         };
         
         const container = document.getElementById('root');
         const root = ReactDOM.createRoot(container);
-        root.render(<App />);
+        root.render(<AppProvider><App /></AppProvider>);
     </script>
 </body>
 </html>
