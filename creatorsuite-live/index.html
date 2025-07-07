@@ -5,14 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CreatorSuite - The Ultimate AI Suite</title>
     
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
+    <!-- React and Babel -->
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -101,7 +105,7 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo, useRef, createContext, useContext } = React;
 
-        // --- DATA: Full suite of tools and categories ---
+        // --- DATA: Expanded to over 100 tools and categories ---
         const categories = {
             "all": { title: 'All Tools', icon: 'infinity', color: '#6366f1' },
             "content-engine": { title: 'Content Engine', icon: 'bot', color: '#10b981' },
@@ -115,6 +119,10 @@
             "pinterest": { title: 'Pinterest', icon: 'pinterest', color: '#e60023' },
             "reddit-quora": { title: 'Reddit / Quora', icon: 'message-circle', color: '#ff4500' },
             "whatsapp": { title: 'WhatsApp Business', icon: 'message-square', color: '#25d366' },
+            "advanced-writing": { title: 'Advanced Writing', icon: 'feather', color: '#f43f5e' },
+            "podcasting": { title: 'Podcasting', icon: 'mic-2', color: '#1d4ed8' },
+            "e-commerce": { title: 'E-commerce', icon: 'shopping-cart', color: '#d946ef' },
+            "legal": { title: 'Legal Templates', icon: 'gavel', color: '#64748b' },
         };
 
         const allTools = [
@@ -129,44 +137,74 @@
             { id: 'keyword-cluster-generator', platforms: ['content-engine', 'blog', 'youtube'], title: 'Keyword Cluster Generator', description: 'Turn a single keyword into a cluster of related topics.', icon: 'network' },
             { id: 'quora-answer-ideas', platforms: ['content-engine', 'reddit-quora'], title: 'Quora Answer Ideas', description: 'Find relevant Quora questions and get ideas to answer them.', icon: 'message-circle-question' },
             { id: 'reddit-post-ideas', platforms: ['content-engine', 'reddit-quora'], title: 'Reddit Post Ideas', description: 'Generate post ideas tailored for specific subreddits.', icon: 'reddit' },
-            
+            { id: 'what-if-scenario-generator', platforms: ['content-engine', 'youtube'], title: '"What If" Scenario Generator', description: 'Turn a simple topic into creative "what if" scenarios.', icon: 'lightbulb-off' },
+            { id: 'mind-map-expander', platforms: ['content-engine', 'blog'], title: 'Mind Map Expander', description: 'Input a central topic for related branches and sub-topics.', icon: 'brain-cog' },
+            { id: 'collaborator-suggester', platforms: ['content-engine', 'youtube', 'instagram'], title: 'Collaborator Suggester', description: 'Describe your channel to get 5 types of creators to collab with.', icon: 'users-2' },
+            { id: 'historical-angle-finder', platforms: ['content-engine', 'youtube', 'blog'], title: 'Historical Angle Finder', description: 'Get a historical perspective on any topic to make content unique.', icon: 'landmark' },
+            { id: 'myth-busting-ideas', platforms: ['content-engine', 'youtube', 'tiktok'], title: 'Myth Busting Ideas', description: 'Enter a topic to get a list of common myths to debunk.', icon: 'zap-off' },
+            { id: 'pros-and-cons-list-generator', platforms: ['content-engine', 'blog', 'youtube'], title: '"Pros and Cons" List Generator', description: 'Create balanced lists for review-style content.', icon: 'list-checks' },
+            { id: 'future-of-brainstormer', platforms: ['content-engine', 'linkedin', 'blog'], title: '"Future Of" Brainstormer', description: 'Enter a topic to get ideas about its future evolution.', icon: 'rocket' },
+
             // Writing & Creation
-            { id: 'script-expander', platforms: ['content-engine', 'youtube', 'tiktok'], title: 'Script & Caption Expander', description: 'Expand a bullet point into a fluent, conversational paragraph.', icon: 'pilcrow' },
-            { id: 'tone-polisher', platforms: ['content-engine', 'blog', 'instagram', 'linkedin'], title: 'Conversational Tone Polisher', description: 'Rewrite formal text to sound more friendly and engaging.', icon: 'smile' },
-            { id: 'storytelling-arc-builder', platforms: ['content-engine', 'youtube', 'blog'], title: 'Storytelling Arc Builder', description: 'Outline a classic storytelling arc for your narrative.', icon: 'git-commit' },
+            { id: 'script-expander', platforms: ['content-engine', 'youtube', 'tiktok', 'podcasting'], title: 'Script & Caption Expander', description: 'Expand a bullet point into a fluent, conversational paragraph.', icon: 'pilcrow' },
+            { id: 'tone-polisher', platforms: ['content-engine', 'blog', 'instagram', 'linkedin', 'advanced-writing'], title: 'Conversational Tone Polisher', description: 'Rewrite formal text to sound more friendly and engaging.', icon: 'smile' },
+            { id: 'storytelling-arc-builder', platforms: ['content-engine', 'youtube', 'blog', 'podcasting'], title: 'Storytelling Arc Builder', description: 'Outline a classic storytelling arc for your narrative.', icon: 'git-commit' },
             { id: 'headline-generator', platforms: ['content-engine', 'youtube', 'blog', 'linkedin'], title: 'Platform-Specific Headlines', description: 'Get optimized titles for your Blog, LinkedIn, or Videos.', icon: 'type' },
-            { id: 'analogy-creator', platforms: ['content-engine', 'blog', 'youtube'], title: 'Analogy Creator', description: 'Explain complex topics with simple, relatable analogies.', icon: 'brain-circuit' },
+            { id: 'analogy-creator', platforms: ['content-engine', 'blog', 'youtube', 'advanced-writing'], title: 'Analogy Creator', description: 'Explain complex topics with simple, relatable analogies.', icon: 'brain-circuit' },
             { id: 'blog-post-intro-writer', platforms: ['content-engine', 'blog'], title: 'Blog Post Intro Writer', description: 'Craft a compelling introduction that hooks your readers instantly.', icon: 'book-open' },
             { id: 'youtube-description-writer', platforms: ['content-engine', 'youtube'], title: 'YouTube Description Writer', description: 'Generate a keyword-rich description from your script.', icon: 'align-left' },
             { id: 'linkedin-post-crafter', platforms: ['content-engine', 'linkedin'], title: 'LinkedIn Post Crafter', description: 'Structure your insights into a compelling LinkedIn post.', icon: 'linkedin' },
             { id: 'x-thread-hook-writer', platforms: ['content-engine', 'x-twitter'], title: 'X (Twitter) Thread Hook', description: 'Write a powerful opening tweet to make your thread go viral.', icon: 'twitter' },
             { id: 'pinterest-pin-description', platforms: ['content-engine', 'pinterest'], title: 'Pinterest Pin Description', description: 'Craft keyword-rich descriptions to boost your Pin\'s visibility.', icon: 'pinterest' },
             { id: 'whatsapp-status-writer', platforms: ['content-engine', 'whatsapp'], title: 'WhatsApp Status Writer', description: 'Generate short, engaging status updates for your business contacts.', icon: 'message-square' },
+            { id: 'paragraph-rewriter', platforms: ['advanced-writing', 'blog'], title: 'Paragraph Rewriter', description: 'Paste a paragraph to get 3 alternative versions (shorter, formal, etc.).', icon: 'replace' },
+            { id: 'ebook-chapter-outliner', platforms: ['advanced-writing', 'creator-business'], title: 'Ebook Chapter Outliner', description: 'Input your ebook\'s topic to get a chapter-by-chapter outline.', icon: 'book-marked' },
+            { id: 'personal-anecdote-weaver', platforms: ['advanced-writing', 'blog', 'youtube'], title: 'Personal Anecdote Weaver', description: 'Weave a personal experience into a compelling story.', icon: 'link' },
+            { id: 'faq-answer-drafter', platforms: ['advanced-writing', 'creator-business'], title: 'FAQ Answer Drafter', description: 'Input a question to get a perfectly structured, clear answer.', icon: 'message-circle-reply' },
+            { id: 'product-review-outline', platforms: ['advanced-writing', 'youtube', 'blog'], title: 'Product Review Outline', description: 'Create a structured review: Intro, Features, Pros, Cons, Verdict.', icon: 'clipboard-list' },
+            { id: 'case-study-formatter', platforms: ['advanced-writing', 'linkedin', 'creator-business'], title: 'Case Study Formatter', description: 'Structure your success story into a professional case study.', icon: 'file-check-2' },
+            { id: 'metaphor-generator', platforms: ['advanced-writing'], title: 'Metaphor & Simile Generator', description: 'Explain a complex topic with unique metaphors and similes.', icon: 'flower-2' },
+            { id: 'opening-line-generator', platforms: ['advanced-writing', 'podcasting'], title: 'Opening Line Generator', description: 'For a speech or video that needs to grab attention instantly.', icon: 'quote' },
+            { id: 'closing-statement-writer', platforms: ['advanced-writing', 'podcasting'], title: 'Closing Statement Writer', description: 'End your content with a powerful, memorable conclusion.', icon: 'quote-off' },
+            { id: 'evidence-suggester', platforms: ['advanced-writing', 'blog'], title: '"Evidence Needed" Suggester', description: 'Describe an argument to get suggestions on what stats to find.', icon: 'search-check' },
             
-            // Optimization & Growth
+            // Podcasting
+            { id: 'podcast-title-brainstormer', platforms: ['podcasting', 'youtube'], title: 'Podcast Episode Titles', description: 'Generate catchy, clickable, and SEO-friendly episode titles.', icon: 'podcast' },
+            { id: 'podcast-segment-ideas', platforms: ['podcasting'], title: 'Podcast Segment Ideas', description: 'Enter a topic to get a structured episode outline.', icon: 'list-todo' },
+            { id: 'interview-question-generator', platforms: ['podcasting', 'youtube'], title: 'Interview Question Generator', description: 'Get insightful, non-generic questions for your guest.', icon: 'mic-2' },
+            { id: 'podcast-show-notes-writer', platforms: ['podcasting'], title: 'Podcast Show Notes Writer', description: 'Paste a summary to get clean, timestamped show notes.', icon: 'file-audio' },
+            { id: 'ad-read-script-template', platforms: ['podcasting', 'creator-business'], title: 'Ad Read Script Template', description: 'A simple template generator for your podcast sponsorships.', icon: 'receipt-text' },
+
+            // E-commerce
+            { id: 'product-naming-brainstormer', platforms: ['e-commerce', 'creator-business'], title: 'Product Naming Brainstormer', description: 'Enter a product concept to get a list of creative, brandable names.', icon: 'lightbulb' },
+            { id: 'shopify-description-writer', platforms: ['e-commerce', 'creator-business'], title: 'Shopify Product Description', description: 'Generate persuasive, benefit-focused descriptions for e-commerce.', icon: 'shopping-cart' },
+            { id: 'etsy-listing-optimizer', platforms: ['e-commerce', 'creator-business'], title: 'Etsy Listing Optimizer', description: 'Tailor your product description with keywords for the Etsy marketplace.', icon: 'store' },
+            { id: 'promo-email-writer', platforms: ['e-commerce', 'creator-business'], title: 'Promotional Email Writer', description: 'Draft compelling emails for a product launch, sale, or restock.', icon: 'mail-plus' },
+            { id: 'customer-support-replies', platforms: ['e-commerce', 'creator-business'], title: 'Customer Support Replies', description: 'Get polite templates for common customer questions.', icon: 'inbox' },
+
+            // Legal Templates
+            { id: 'disclaimer-generator', platforms: ['legal', 'creator-business'], title: 'Basic Disclaimer Generator', description: 'Generate templates for affiliate links, sponsorships, or advice.', icon: 'gavel' },
+            { id: 'privacy-policy-template', platforms: ['legal', 'creator-business'], title: 'Basic Privacy Policy Template', description: 'Create a simple privacy policy for a personal blog or website.', icon: 'file-lock-2' },
+            { id: 'giveaway-rules-template', platforms: ['legal', 'instagram'], title: 'Giveaway Rules Template', description: 'A basic template for social media giveaway rules.', icon: 'scroll-text' },
+            
+            // Optimization, Repurposing, Community, Business... (Existing tools are here)
             { id: 'hashtag-generator', platforms: ['content-engine', 'instagram', 'tiktok', 'linkedin'], title: 'All-Platform Hashtags', description: 'Get tailored sets of hashtags for all major platforms.', icon: 'hash' },
             { id: 'meta-description-generator', platforms: ['content-engine', 'blog'], title: 'Meta Description Generator', description: 'Create SEO-friendly meta descriptions to improve click-through rates.', icon: 'search' },
             { id: 'tiktok-sound-suggester', platforms: ['content-engine', 'tiktok'], title: 'TikTok Sound Suggester', description: 'Get suggestions for currently trending audio for your video.', icon: 'music-4' },
             { id: 'instagram-story-ideas', platforms: ['content-engine', 'instagram'], title: 'Instagram Story Ideas', description: 'Get 10 creative ideas for your next engaging IG Story series.', icon: 'camera' },
             { id: 'youtube-tag-generator', platforms: ['content-engine', 'youtube'], title: 'YouTube Tag Generator', description: 'Generate a list of relevant tags to improve video discovery.', icon: 'tags' },
             { id: 'linkedin-article-optimizer', platforms: ['content-engine', 'linkedin'], title: 'LinkedIn Article Optimizer', description: 'Get tips on how to improve your LinkedIn article for engagement.', icon: 'file-text' },
-            
-            // Repurposing
             { id: 'tweet-thread-converter', platforms: ['content-engine', 'x-twitter'], title: 'Long-Form to Tweet Thread', description: 'Format a video transcript or blog text into a Twitter/X thread.', icon: 'repeat-2' },
             { id: 'carousel-outliner', platforms: ['content-engine', 'instagram', 'linkedin'], title: 'Blog Post to Carousel', description: 'Outline a 10-slide Instagram or LinkedIn carousel from an article.', icon: 'gallery-horizontal' },
             { id: 'video-to-blog-post', platforms: ['content-engine', 'blog', 'youtube'], title: 'Video to Blog Post', description: 'Turn a video transcript into a well-structured blog post.', icon: 'video-off' },
-            { id: 'text-to-podcast-segment', platforms: ['content-engine', 'youtube'], title: 'Text to Podcast Segment', description: 'Convert an article into a conversational podcast script segment.', icon: 'mic' },
-            
-            // Community & Engagement
+            { id: 'text-to-podcast-segment', platforms: ['content-engine', 'youtube', 'podcasting'], title: 'Text to Podcast Segment', description: 'Convert an article into a conversational podcast script segment.', icon: 'mic' },
             { id: 'comment-responder', platforms: ['content-engine', 'youtube', 'instagram', 'tiktok'], title: 'Comment Response Helper', description: 'Get unique, non-robotic replies to build community rapport.', icon: 'messages-square' },
             { id: 'poll-generator', platforms: ['content-engine', 'youtube', 'instagram', 'x-twitter'], title: 'Community Poll Generator', description: 'Generate engaging poll questions and conversation starters.', icon: 'pie-chart' },
             { id: 'troll-disarmer', platforms: ['content-engine', 'youtube', 'instagram', 'x-twitter'], title: 'Troll Disarmer Replies', description: 'Get strategic replies to disarm negativity gracefully.', icon: 'shield' },
             { id: 'whatsapp-broadcast-message', platforms: ['content-engine', 'whatsapp'], title: 'WhatsApp Broadcast Message', description: 'Draft promotional or informational messages for your broadcast list.', icon: 'megaphone-off' },
-            
-            // Creator Business
             { id: 'sponsorship-pitch-writer', platforms: ['creator-business'], title: 'Sponsorship Pitch Email', description: 'Input a brand name to draft a professional, personalized pitch email.', icon: 'send' },
             { id: 'affiliate-snippet-generator', platforms: ['creator-business', 'youtube', 'blog'], title: 'Affiliate Review Snippets', description: 'Write a short, authentic-sounding recommendation for a product.', icon: 'star' },
-            { id: 'digital-product-brainstormer', platforms: ['creator-business'], title: 'Digital Product Brainstormer', description: 'Get 5 viable digital products you could create and sell.', icon: 'package' },
+            { id: 'digital-product-brainstormer', platforms: ['creator-business', 'e-commerce'], title: 'Digital Product Brainstormer', description: 'Get 5 viable digital products you could create and sell.', icon: 'package' },
             { id: 'batching-day-planner', platforms: ['creator-business'], title: 'Content Batching Planner', description: 'Select a task to create a detailed, time-blocked schedule.', icon: 'calendar-check' },
             { id: 'polite-decline-script', platforms: ['creator-business'], title: 'Polite Decline Scripts', description: 'Generate polite but firm responses to say "no" to collaborations.', icon: 'shield-off' },
             { id: 'burnout-reframer', platforms: ['creator-business'], title: 'Burnout Symptom Reframer', description: 'Describe how you feel to get a restorative action plan.', icon: 'battery-charging' },
@@ -174,30 +212,39 @@
             { id: 'media-kit-bullet-points', platforms: ['creator-business'], title: 'Media Kit Bullet Points', description: 'Generate key stats and selling points for your media kit.', icon: 'bar-chart-3' },
             { id: 'audience-persona-creator', platforms: ['creator-business'], title: 'Audience Persona Creator', description: 'Define your ideal follower to create more targeted content.', icon: 'user-check' },
             { id: 'mission-statement-writer', platforms: ['creator-business'], title: 'Mission Statement Writer', description: 'Craft a clear and inspiring mission statement for your brand.', icon: 'flag' },
-            { id: 'merch-idea-generator', platforms: ['creator-business', 'youtube'], title: 'Merch Idea Generator', description: 'Brainstorm unique merchandise ideas your audience will love.', icon: 'shirt' },
+            { id: 'merch-idea-generator', platforms: ['creator-business', 'youtube', 'e-commerce'], title: 'Merch Idea Generator', description: 'Brainstorm unique merchandise ideas your audience will love.', icon: 'shirt' },
             { id: 'video-cta-script', platforms: ['creator-business', 'youtube', 'tiktok'], title: 'Video CTA Script', description: 'Get scripts for powerful calls-to-action in your videos.', icon: 'video' },
         ];
         
-        // --- AI Prompt Cookbook (Expanded) ---
+        // --- AI Prompt Cookbook (Expanded for new tools) ---
         const promptCookbook = {
             'viral-hook-generator': (input, voice) => `As a viral marketing expert, ${voice} generate 5 unique hooks for content about "${input}". Use different psychological triggers (curiosity, controversy, social proof, urgency). Format as a numbered list with bolded hooks.`,
             'script-expander': (input, voice) => `As a pro scriptwriter, ${voice} expand this idea into a 100-word conversational paragraph for a video script: "${input}"`,
             'tone-polisher': (input, voice) => `As an expert editor, ${voice} rewrite this text to be more friendly and conversational, preserving the core message: "${input}"`,
             'sponsorship-pitch-writer': (input, voice) => `As a creator outreach specialist, ${voice} write a professional sponsorship pitch email to "${input}". Introduce a hypothetical creator, explain the brand fit, and propose collaboration with a clear call to action.`,
+            'headline-generator': (input, voice) => `As a headline expert, ${voice} generate 5 platform-optimized headlines for content about "${input}". Provide one for a YouTube video (clickable), one for a Blog Post (SEO-focused), and one for a LinkedIn article (professional).`,
+            'hashtag-generator': (input, voice) => `As a social media expert, ${voice} generate 3 sets of hashtags for a post about "${input}". One set for Instagram (20 tags), one for TikTok (10 tags), and one for LinkedIn (5 tags).`,
+            'youtube-description-writer': (input, voice) => `As a YouTube SEO expert, ${voice} write a keyword-rich YouTube description based on this video script or topic. Include a compelling summary, relevant keywords, and timestamp suggestions if applicable: "${input}"`,
+            'linkedin-post-crafter': (input, voice) => `As a LinkedIn ghostwriter, ${voice} take this insight and structure it into a compelling LinkedIn post. Use a strong hook, storytelling, bullet points for clarity, and end with a question to drive engagement. The insight is: "${input}"`,
+            'paragraph-rewriter': (input, voice) => `As an expert editor, ${voice} rewrite the following paragraph in three distinct styles: 1. More Concise, 2. More Formal, 3. More Descriptive. The paragraph is: "${input}"`,
+            'podcast-title-brainstormer': (input, voice) => `As a podcast producer, ${voice} generate 10 catchy, clickable, and SEO-friendly titles for a podcast episode about "${input}".`,
+            'shopify-description-writer': (input, voice) => `As an e-commerce copywriter, ${voice} write a persuasive, benefit-focused product description for: "${input}". Use bullet points for key features.`,
+            'disclaimer-generator': (input, voice) => `As a compliance assistant, generate a simple, template disclaimer for the following purpose: "${input}". Include a strong recommendation to consult a professional. This is not legal advice.`,
             'default': (input, title, voice) => `Act as an expert AI assistant for a content creator. The user wants to use the "${title}" tool. ${voice} Generate a helpful, creative, and insightful response based on the following input: "${input}". Provide a high-quality, actionable result.`
         };
         
-        // --- Input Placeholder Cookbook ---
+        // --- Input Placeholder Cookbook (Expanded) ---
         const placeholderCookbook = {
             'viral-hook-generator': 'e.g., A new productivity hack that feels like cheating',
-            'niche-angle-finder': 'e.g., Sustainable living for apartment dwellers',
-            'trend-forecaster': 'e.g., The future of AI in video editing',
             'script-expander': 'e.g., Explain the importance of sleep for creativity',
             'tone-polisher': 'e.g., The aforementioned study indicates a correlation...',
-            'storytelling-arc-builder': 'e.g., A story about overcoming my fear of public speaking',
+            'sponsorship-pitch-writer': 'e.g., A coffee brand I genuinely love and use daily',
             'headline-generator': 'e.g., My review of the new Sony camera',
             'hashtag-generator': 'e.g., A travel photo from Paris',
-            'sponsorship-pitch-writer': 'e.g., A coffee brand I genuinely love and use daily',
+            'paragraph-rewriter': 'e.g., Paste a paragraph you want to improve here...',
+            'podcast-title-brainstormer': 'e.g., An interview with a successful entrepreneur',
+            'shopify-description-writer': 'e.g., A handmade leather wallet with three card slots',
+            'disclaimer-generator': 'e.g., An affiliate link for a camera I recommend',
             'default': (title) => `Enter your topic for the ${title}...`
         };
 
@@ -334,8 +381,6 @@
                 const promptBuilder = promptCookbook[tool.id] || promptCookbook['default'];
                 const finalPrompt = promptBuilder(inputValue, tool.title, voiceProfile);
                 try {
-                    // *** THIS IS THE DIRECT API CALL FIX ***
-                    // IMPORTANT: Replace this with your actual key for the demo.
                     const apiKey = "AIzaSyBqkydrLg2xRGsuYnoiy4mtkZy_uytfgZU"; 
                     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
                     
@@ -352,7 +397,6 @@
                     const result = await response.json();
 
                     if (!response.ok) {
-                        // The error from Gemini is often inside result.error.message
                         throw new Error(result.error?.message || `API Error: ${response.statusText}`);
                     }
                     
@@ -370,7 +414,6 @@
                             });
                         }
                     } else {
-                        // This handles cases where the API returns OK, but no content (e.g., safety blocks)
                         const blockReason = result.candidates?.[0]?.finishReason;
                         throw new Error(blockReason ? `Generation blocked: ${blockReason}` : "Unexpected API response format.");
                     }
@@ -384,22 +427,12 @@
             
             const handleCopy = () => {
                 if (outputRef.current?.innerText) {
-                    const textToCopy = outputRef.current.innerText;
-                    const textArea = document.createElement("textarea");
-                    textArea.value = textToCopy;
-                    textArea.style.position = "fixed";
-                    textArea.style.left = "-9999px";
-                    document.body.appendChild(textArea);
-                    textArea.select();
-                    try {
-                        document.execCommand('copy');
-                        setCopyText('Copied!');
-                        setTimeout(() => setCopyText('Copy'), 2000);
-                    } catch (err) {
-                        console.error('Failed to copy text: ', err);
-                        setCopyText('Failed to Copy');
-                    }
-                    document.body.removeChild(textArea);
+                    navigator.clipboard.writeText(outputRef.current.innerText)
+                        .then(() => {
+                            setCopyText('Copied!');
+                            setTimeout(() => setCopyText('Copy'), 2000);
+                        })
+                        .catch(err => console.error('Copy failed', err));
                 }
             };
 
