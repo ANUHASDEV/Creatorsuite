@@ -5,18 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CreatorSuite - The Ultimate AI Suite</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- React and Babel -->
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -338,18 +334,26 @@
                 const promptBuilder = promptCookbook[tool.id] || promptCookbook['default'];
                 const finalPrompt = promptBuilder(inputValue, tool.title, voiceProfile);
                 try {
-                    const secureApiUrl = `/.netlify/functions/generate`;
+                    // *** THIS IS THE DIRECT API CALL FIX ***
+                    // IMPORTANT: Replace this with your actual key for the demo.
+                    const apiKey = "AIzaSyBqkydrLg2xRGsuYnoiy4mtkZy_uytfgZU"; 
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
                     
-                    const response = await fetch(secureApiUrl, {
+                    const payload = {
+                        contents: [{ role: "user", parts: [{ text: finalPrompt }] }]
+                    };
+                    
+                    const response = await fetch(apiUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ prompt: finalPrompt })
+                        body: JSON.stringify(payload)
                     });
-                    
+
                     const result = await response.json();
 
                     if (!response.ok) {
-                        throw new Error(result.error || `API Error: ${response.statusText}`);
+                        // The error from Gemini is often inside result.error.message
+                        throw new Error(result.error?.message || `API Error: ${response.statusText}`);
                     }
                     
                     if (result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
@@ -366,7 +370,9 @@
                             });
                         }
                     } else {
-                        throw new Error("Unexpected API response format. Please try again.");
+                        // This handles cases where the API returns OK, but no content (e.g., safety blocks)
+                        const blockReason = result.candidates?.[0]?.finishReason;
+                        throw new Error(blockReason ? `Generation blocked: ${blockReason}` : "Unexpected API response format.");
                     }
                 } catch (err) {
                     setError(`An error occurred: ${err.message}`);
@@ -378,12 +384,22 @@
             
             const handleCopy = () => {
                 if (outputRef.current?.innerText) {
-                    navigator.clipboard.writeText(outputRef.current.innerText)
-                        .then(() => {
-                            setCopyText('Copied!');
-                            setTimeout(() => setCopyText('Copy'), 2000);
-                        })
-                        .catch(err => console.error('Copy failed', err));
+                    const textToCopy = outputRef.current.innerText;
+                    const textArea = document.createElement("textarea");
+                    textArea.value = textToCopy;
+                    textArea.style.position = "fixed";
+                    textArea.style.left = "-9999px";
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        setCopyText('Copied!');
+                        setTimeout(() => setCopyText('Copy'), 2000);
+                    } catch (err) {
+                        console.error('Failed to copy text: ', err);
+                        setCopyText('Failed to Copy');
+                    }
+                    document.body.removeChild(textArea);
                 }
             };
 
