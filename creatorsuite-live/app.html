@@ -375,7 +375,7 @@
                 const promptBuilder = promptCookbook[tool.id] || promptCookbook['default'];
                 const finalPrompt = promptBuilder(inputValue, tool.title, voiceProfile);
                 try {
-                    const apiKey = "YOUR_GEMINI_API_KEY_HERE"; 
+                    const apiKey = "AIzaSyBqkydrLg2xRGsuYnoiy4mtkZy_uytfgZU"; 
                     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
                     
                     const payload = {
