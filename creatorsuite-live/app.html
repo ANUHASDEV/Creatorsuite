@@ -1,1 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CreatorSuite - The Ultimate AI Suite</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- React and Babel -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f8fc;
+            color: #0f172a; /* Slate 900 */
+        }
+        
+        /* Animated Gradient Orb Background */
+        .orb-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            will-change: transform;
+        }
+        .orb-1 { width: 400px; height: 400px; background-color: rgba(167, 139, 250, 0.3); animation: move1 25s infinite alternate; }
+        .orb-2 { width: 500px; height: 500px; background-color: rgba(244, 114, 182, 0.3); animation: move2 30s infinite alternate; }
+        .orb-3 { width: 300px; height: 300px; background-color: rgba(96, 165, 250, 0.3); animation: move3 20s infinite alternate; }
+
+        @keyframes move1 { from { transform: translate(10vw, -20vh) rotate(0deg); } to { transform: translate(60vw, 50vh) rotate(360deg); } }
+        @keyframes move2 { from { transform: translate(80vw, 20vh) rotate(0deg); } to { transform: translate(10vw, 70vh) rotate(-360deg); } }
+        @keyframes move3 { from { transform: translate(-10vw, 40vh) rotate(0deg); } to { transform: translate(90vw, -10vh) rotate(180deg); } }
+
+        /* Gradient text effect */
+        .gradient-text {
+            background-image: linear-gradient(to right, #4f46e5, #ec4899);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        /* General animation classes */
+        .fade-in-up { animation: fadeInUp 0.8s ease-out forwards; opacity: 0; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .delay-100 { animation-delay: 0.1s; } .delay-200 { animation-delay: 0.2s; } .delay-300 { animation-delay: 0.3s; }
+        
+        /* Modal styling */
+        .modal-backdrop { animation: fadeIn 0.3s ease-out forwards; }
+        .modal-content { animation: slideUp 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+        /* Beautiful custom scrollbar for filter section */
+        .beautiful-scrollbar::-webkit-scrollbar {
+            height: 6px;
+        }
+        .beautiful-scrollbar::-webkit-scrollbar-track {
+            background: #e2e8f0; /* slate-200 */
+            border-radius: 3px;
+        }
+        .beautiful-scrollbar::-webkit-scrollbar-thumb {
+            background: #c4b5fd; /* violet-300 */
+            border-radius: 3px;
+        }
+        .beautiful-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #a78bfa; /* violet-400 */
+        }
+        
+        /* Animated gradient for active filter */
+        .filter-active-bg {
+            background-size: 200% 200%;
+            animation: gradient-animation 5s ease infinite;
+        }
+        
+        /* XP Bar animation */
+        .xp-bar-inner {
+            transition: width 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo, useRef, createContext, useContext } = React;
+
+        // --- DATA: Expanded to over 100 tools and categories ---
+        const categories = {
+            "all": { title: 'All Tools', icon: 'infinity', color: '#6366f1' },
+            "content-engine": { title: 'Content Engine', icon: 'bot', color: '#10b981' },
+            "creator-business": { title: 'Creator\'s Business', icon: 'briefcase', color: '#f59e0b' },
+            "advanced-writing": { title: 'Advanced Writing', icon: 'feather', color: '#f43f5e' },
+            "podcasting": { title: 'Podcasting', icon: 'mic-2', color: '#1d4ed8' },
+            "e-commerce": { title: 'E-commerce', icon: 'shopping-cart', color: '#d946ef' },
+            "youtube": { title: 'YouTube', icon: 'youtube', color: '#ef4444' },
+            "instagram": { title: 'Instagram', icon: 'instagram', color: '#ec4899' },
+            "tiktok": { title: 'TikTok', icon: 'music', color: '#0f172a' },
+            "x-twitter": { title: 'X / Twitter', icon: 'twitter', color: '#38bdf8' },
+            "linkedin": { title: 'LinkedIn', icon: 'linkedin', color: '#0ea5e9' },
+            "blog": { title: 'Blog / SEO', icon: 'pen-tool', color: '#8b5cf6' },
+            "pinterest": { title: 'Pinterest', icon: 'pinterest', color: '#e60023' },
+            "reddit-quora": { title: 'Reddit / Quora', icon: 'message-circle', color: '#ff4500' },
+            "whatsapp": { title: 'WhatsApp Business', icon: 'message-square', color: '#25d366' },
+            "legal": { title: 'Legal Templates', icon: 'gavel', color: '#64748b' },
+        };
+
+        const allTools = [
+            // --- NEW TOOLS FROM USER REQUEST ---
+            { id: 'viral-title-creator', platforms: ['content-engine', 'youtube', 'blog', 'linkedin'], title: 'Viral Title Generator', description: 'Craft irresistible, click-worthy titles for any content.', icon: 'award' },
+            { id: 'long-video-script-creator', platforms: ['content-engine', 'youtube', 'advanced-writing'], title: 'Long-Form Video Scriptwriter', description: 'Generate a detailed, structured script for your next deep-dive video.', icon: 'file-text' },
+            { id: 'short-video-script-creator', platforms: ['content-engine', 'tiktok', 'instagram', 'youtube'], title: 'Short-Form Video Script', description: 'Create snappy, engaging scripts for Reels, Shorts, and TikToks.', icon: 'file-video-2' },
+            { id: 'social-bio-creator', platforms: ['creator-business', 'instagram', 'x-twitter', 'linkedin'], title: 'Social Media Bio Generator', description: 'Create a compelling bio that explains who you are and what you do.', icon: 'user-square' },
+            { id: 'logo-concept-brainstormer', platforms: ['creator-business'], title: 'Logo Concept Brainstormer', description: 'Get unique concepts and ideas for your new brand logo.', icon: 'gem' },
+            { id: 'channel-name-generator', platforms: ['creator-business', 'youtube', 'tiktok'], title: 'Channel Name Generator', description: 'Brainstorm creative and available-sounding names for your new channel.', icon: 'at-sign' },
+            { id: 'youtube-thumbnail-ideas', platforms: ['youtube', 'content-engine'], title: 'YouTube Thumbnail Concepts', description: 'Get 3 distinct visual concepts for your next video thumbnail.', icon: 'image' },
+            { id: 'seo-keyword-generator', platforms: ['blog', 'youtube'], title: 'SEO Keyword Generator', description: 'Enter a topic to get a list of primary and secondary keywords.', icon: 'key-round' },
+            { id: 'video-editing-tips', platforms: ['youtube', 'tiktok'], title: 'Video Editing Tips', description: 'Describe your video to get specific editing tips to increase retention.', icon: 'wand-2' },
+            { id: 'tiktok-video-ideas', platforms: ['tiktok', 'content-engine'], title: 'TikTok Video Ideas', description: 'Get a list of fresh, on-trend video ideas for your niche.', icon: 'video' },
+            { id: 'instagram-post-ideas', platforms: ['instagram', 'content-engine'], title: 'Instagram Post Ideas', description: 'Generate ideas for carousels, single images, or info-graphics.', icon: 'instagram' },
+            { id: 'instagram-reels-ideas', platforms: ['instagram', 'tiktok'], title: 'Instagram Reels Ideas', description: 'Get ideas for engaging, shareable Reels for your audience.', icon: 'film' },
+            { id: 'x-post-crafter', platforms: ['x-twitter', 'content-engine'], title: 'X (Twitter) Post Crafter', description: 'Draft a single, impactful tweet about any topic.', icon: 'twitter' },
+            { id: 'linkedin-post-ideas', platforms: ['linkedin', 'content-engine'], title: 'LinkedIn Post Ideas', description: 'Brainstorm professional and thought-provoking post ideas.', icon: 'linkedin' },
+            { id: 'product-review-script', platforms: ['youtube', 'blog', 'advanced-writing'], title: 'Product Review Script', description: 'Generate a structured script for an honest product review.', icon: 'star-half' },
+            { id: 'hot-topic-finder', platforms: ['content-engine', 'youtube', 'blog'], title: 'Hot Topic Finder', description: 'Discover trending and highly-debated topics in your niche.', icon: 'flame' },
+            { id: 'facebook-post-ideas', platforms: ['facebook', 'content-engine'], title: 'Facebook Post Ideas', description: 'Get ideas for posts that will engage your community on Facebook.', icon: 'facebook' },
+            { id: 'blog-post-outline', platforms: ['blog', 'advanced-writing'], title: 'Blog Post Outline', description: 'Enter a topic to get a well-structured outline for your article.', icon: 'list' },
+            
+            // --- EXISTING TOOLS ---
+            // Ideation
+            { id: 'niche-angle-finder', platforms: ['content-engine', 'youtube', 'blog'], title: 'Niche Angle Finder', description: 'Discover fresh, non-obvious angles for your content.', icon: 'compass' },
+            { id: 'trend-forecaster', platforms: ['content-engine', 'youtube', 'tiktok'], title: 'Trend Forecaster', description: 'Find emerging topics and formats that are about to trend.', icon: 'trending-up' },
+            { id: 'content-calendar-ideas', platforms: ['content-engine', 'instagram', 'tiktok', 'x-twitter'], title: 'Content Calendar Ideas', description: 'Enter your niche to get a week\'s worth of content ideas.', icon: 'calendar-days' },
+            { id: 'audience-question-finder', platforms: ['content-engine', 'youtube', 'blog', 'reddit-quora'], title: 'Audience Question Finder', description: 'Find the burning questions your audience is asking.', icon: 'help-circle' },
+            { id: 'controversial-opinion-generator', platforms: ['content-engine', 'youtube', 'x-twitter', 'linkedin'], title: 'Controversial Opinion Generator', description: 'Spark debate with a contrarian take on a popular topic.', icon: 'flame' },
+            { id: 'a-b-test-ideas', platforms: ['content-engine', 'youtube'], title: 'A/B Test Ideas', description: 'Generate thumbnail and title variations to test.', icon: 'split' },
+            { id: 'keyword-cluster-generator', platforms: ['content-engine', 'blog', 'youtube'], title: 'Keyword Cluster Generator', description: 'Turn a single keyword into a cluster of related topics.', icon: 'network' },
+            { id: 'quora-answer-ideas', platforms: ['content-engine', 'reddit-quora'], title: 'Quora Answer Ideas', description: 'Find relevant Quora questions and get ideas to answer them.', icon: 'message-circle-question' },
+            { id: 'reddit-post-ideas', platforms: ['content-engine', 'reddit-quora'], title: 'Reddit Post Ideas', description: 'Generate post ideas tailored for specific subreddits.', icon: 'reddit' },
+            { id: 'what-if-scenario-generator', platforms: ['content-engine', 'youtube'], title: '"What If" Scenario Generator', description: 'Turn a simple topic into creative "what if" scenarios.', icon: 'lightbulb-off' },
+            { id: 'mind-map-expander', platforms: ['content-engine', 'blog'], title: 'Mind Map Expander', description: 'Input a central topic for related branches and sub-topics.', icon: 'brain-cog' },
+            { id: 'collaborator-suggester', platforms: ['content-engine', 'youtube', 'instagram'], title: 'Collaborator Suggester', description: 'Describe your channel to get 5 types of creators to collab with.', icon: 'users-2' },
+            { id: 'historical-angle-finder', platforms: ['content-engine', 'youtube', 'blog'], title: 'Historical Angle Finder', description: 'Get a historical perspective on any topic to make content unique.', icon: 'landmark' },
+            { id: 'myth-busting-ideas', platforms: ['content-engine', 'youtube', 'tiktok'], title: 'Myth Busting Ideas', description: 'Enter a topic to get a list of common myths to debunk.', icon: 'zap-off' },
+            { id: 'pros-and-cons-list-generator', platforms: ['content-engine', 'blog', 'youtube'], title: '"Pros and Cons" List Generator', description: 'Create balanced lists for review-style content.', icon: 'list-checks' },
+            { id: 'future-of-brainstormer', platforms: ['content-engine', 'linkedin', 'blog'], title: '"Future Of" Brainstormer', description: 'Enter a topic to get ideas about its future evolution.', icon: 'rocket' },
+            { id: 'explainer-video-script-outline', platforms: ['content-engine', 'youtube'], title: '"Explainer Video" Script Outline', description: 'A structure specifically for creating effective explainer videos.', icon: 'file-question' },
+            { id: 'day-in-the-life-storyboard', platforms: ['content-engine', 'youtube', 'tiktok'], title: '"Day in the Life" Storyboard', description: 'Get a creative storyboard outline for a "day in the life" video.', icon: 'clapperboard' },
+            { id: 'tutorial-outline-creator', platforms: ['content-engine', 'youtube', 'blog'], title: 'Tutorial Outline Creator', description: 'A step-by-step structure for creating effective "how-to" guides.', icon: 'list-ordered' },
+
+            // Writing & Creation
+            { id: 'script-expander', platforms: ['content-engine', 'youtube', 'tiktok', 'podcasting'], title: 'Script & Caption Expander', description: 'Expand a bullet point into a fluent, conversational paragraph.', icon: 'pilcrow' },
+            { id: 'tone-polisher', platforms: ['content-engine', 'blog', 'instagram', 'linkedin', 'advanced-writing'], title: 'Conversational Tone Polisher', description: 'Rewrite formal text to sound more friendly and engaging.', icon: 'smile' },
+            { id: 'storytelling-arc-builder', platforms: ['content-engine', 'youtube', 'blog', 'podcasting'], title: 'Storytelling Arc Builder', description: 'Outline a classic storytelling arc for your narrative.', icon: 'git-commit' },
+            { id: 'analogy-creator', platforms: ['content-engine', 'blog', 'youtube', 'advanced-writing'], title: 'Analogy Creator', description: 'Explain complex topics with simple, relatable analogies.', icon: 'brain-circuit' },
+            { id: 'paragraph-rewriter', platforms: ['advanced-writing', 'blog'], title: 'Paragraph Rewriter', description: 'Paste a paragraph to get 3 alternative versions (shorter, formal, etc.).', icon: 'replace' },
+            { id: 'ebook-chapter-outliner', platforms: ['advanced-writing', 'creator-business'], title: 'Ebook Chapter Outliner', description: 'Input your ebook\'s topic to get a chapter-by-chapter outline.', icon: 'book-marked' },
+            { id: 'personal-anecdote-weaver', platforms: ['advanced-writing', 'blog', 'youtube'], title: 'Personal Anecdote Weaver', description: 'Weave a personal experience into a compelling story.', icon: 'link' },
+            { id: 'faq-answer-drafter', platforms: ['advanced-writing', 'creator-business'], title: 'FAQ Answer Drafter', description: 'Input a question to get a perfectly structured, clear answer.', icon: 'message-circle-reply' },
+            { id: 'case-study-formatter', platforms: ['advanced-writing', 'linkedin', 'creator-business'], title: 'Case Study Formatter', description: 'Structure your success story into a professional case study.', icon: 'file-check-2' },
+            { id: 'metaphor-generator', platforms: ['advanced-writing'], title: 'Metaphor & Simile Generator', description: 'Explain a complex topic with unique metaphors and similes.', icon: 'flower-2' },
+            { id: 'opening-line-generator', platforms: ['advanced-writing', 'podcasting'], title: 'Opening Line Generator', description: 'For a speech or video that needs to grab attention instantly.', icon: 'quote' },
+            { id: 'closing-statement-writer', platforms: ['advanced-writing', 'podcasting'], title: 'Closing Statement Writer', description: 'End your content with a powerful, memorable conclusion.', icon: 'quote-off' },
+            { id: 'evidence-suggester', platforms: ['advanced-writing', 'blog'], title: '"Evidence Needed" Suggester', description: 'Describe an argument to get suggestions on what stats to find.', icon: 'search-check' },
+            
+            // Podcasting
+            { id: 'podcast-title-brainstormer', platforms: ['podcasting', 'youtube'], title: 'Podcast Episode Titles', description: 'Generate catchy, clickable, and SEO-friendly episode titles.', icon: 'podcast' },
+            { id: 'podcast-segment-ideas', platforms: ['podcasting'], title: 'Podcast Segment Ideas', description: 'Enter a topic to get a structured episode outline.', icon: 'list-todo' },
+            { id: 'interview-question-generator', platforms: ['podcasting', 'youtube'], title: 'Interview Question Generator', description: 'Get insightful, non-generic questions for your guest.', icon: 'mic-2' },
+            { id: 'podcast-show-notes-writer', platforms: ['podcasting'], title: 'Podcast Show Notes Writer', description: 'Paste a summary to get clean, timestamped show notes.', icon: 'file-audio' },
+            { id: 'ad-read-script-template', platforms: ['podcasting', 'creator-business'], title: 'Ad Read Script Template', description: 'A simple template generator for your podcast sponsorships.', icon: 'receipt-text' },
+
+            // E-commerce
+            { id: 'product-naming-brainstormer', platforms: ['e-commerce', 'creator-business'], title: 'Product Naming Brainstormer', description: 'Enter a product concept to get a list of creative, brandable names.', icon: 'lightbulb' },
+            { id: 'shopify-description-writer', platforms: ['e-commerce', 'creator-business'], title: 'Shopify Product Description', description: 'Generate persuasive, benefit-focused descriptions for e-commerce.', icon: 'shopping-cart' },
+            { id: 'etsy-listing-optimizer', platforms: ['e-commerce', 'creator-business'], title: 'Etsy Listing Optimizer', description: 'Tailor your product description with keywords for the Etsy marketplace.', icon: 'store' },
+            { id: 'promo-email-writer', platforms: ['e-commerce', 'creator-business'], title: 'Promotional Email Writer', description: 'Draft compelling emails for a product launch, sale, or restock.', icon: 'mail-plus' },
+            { id: 'customer-support-replies', platforms: ['e-commerce', 'creator-business'], title: 'Customer Support Replies', description: 'Get polite templates for common customer questions.', icon: 'inbox' },
+
+            // Legal Templates
+            { id: 'disclaimer-generator', platforms: ['legal', 'creator-business'], title: 'Basic Disclaimer Generator', description: 'Generate templates for affiliate links, sponsorships, or advice.', icon: 'gavel' },
+            { id: 'privacy-policy-template', platforms: ['legal', 'creator-business'], title: 'Basic Privacy Policy Template', description: 'Create a simple privacy policy for a personal blog or website.', icon: 'file-lock-2' },
+            { id: 'giveaway-rules-template', platforms: ['legal', 'instagram'], title: 'Giveaway Rules Template', description: 'A basic template for social media giveaway rules.', icon: 'scroll-text' },
+            
+            // ... (and so on, including all previous tools)
+        ];
+        
+        // --- AI Prompt Cookbook (Expanded for new tools) ---
+        const promptCookbook = {
+            'viral-title-creator': (input, voice) => `As a master copywriter, ${voice} generate 10 viral, clickable titles for a piece of content about "${input}". Include a mix of listicles, questions, and controversial statements.`,
+            'long-video-script-creator': (input, voice) => `As a professional screenwriter, ${voice} create a detailed, structured script outline for a 10-15 minute YouTube video about "${input}". Include sections for Hook, Introduction, 3 Main Points with sub-bullets, and a Conclusion with a Call to Action.`,
+            'short-video-script-creator': (input, voice) => `As a TikTok script expert, ${voice} write a short, punchy, 15-30 second video script about "${input}". Structure it with a strong visual hook, quick cuts, and a clear, engaging voiceover.`,
+            'social-bio-creator': (input, voice) => `As a branding expert, ${voice} write 3 distinct social media bios for a creator focused on "${input}". One should be professional for LinkedIn, one witty for X/Twitter, and one benefit-driven for Instagram.`,
+            'logo-concept-brainstormer': (input, voice) => `As a creative director, ${voice} brainstorm 5 unique logo concepts for a brand focused on "${input}". Describe the visual style, color palette, and the feeling each concept should evoke.`,
+            'channel-name-generator': (input, voice) => `As a branding specialist, ${voice} generate 10 creative and brandable channel names for a creator focused on "${input}". Include a mix of modern, classic, and clever names.`,
+            'youtube-thumbnail-ideas': (input, voice) => `As a YouTube strategist, ${voice} suggest 3 distinct visual concepts for a thumbnail for a video about "${input}". Describe the imagery, text overlay, and emotional trigger for each concept (e.g., curiosity, shock).`,
+            'seo-keyword-generator': (input, voice) => `As an SEO expert, ${voice} generate a list of keywords for a piece of content about "${input}". Provide 5 primary keywords and 15 secondary (LSI) keywords.`,
+            'video-editing-tips': (input, voice) => `As a professional video editor, ${voice} provide 5 specific, actionable editing tips to increase audience retention for a video about "${input}". For example, suggest types of B-roll, J-cuts, L-cuts, or text animations.`,
+            'tiktok-video-ideas': (input, voice) => `As a TikTok trend expert, ${voice} generate 5 on-trend video ideas for a creator in the "${input}" niche. Include suggestions for trending sounds or formats.`,
+            'instagram-post-ideas': (input, voice) => `As an Instagram strategist, ${voice} generate 5 post ideas for a creator focused on "${input}". Include ideas for a carousel post, a single image post, and an infographic.`,
+            'instagram-reels-ideas': (input, voice) => `As a Reels expert, ${voice} generate 5 engaging Instagram Reel ideas for a creator in the "${input}" niche. Suggest a hook, a visual sequence, and a call to action for each.`,
+            'x-post-crafter': (input, voice) => `As a social media manager, ${voice} draft 3 impactful, concise tweets about "${input}". Each should have a different angle (e.g., a question, a strong statement, a helpful tip).`,
+            'linkedin-post-ideas': (input, voice) => `As a LinkedIn content expert, ${voice} brainstorm 5 professional and thought-provoking post ideas for someone in the "${input}" space.`,
+            'product-review-script': (input, voice) => `As a trusted reviewer, ${voice} write a script outline for an honest and balanced review of "${input}". Include sections for introduction, unboxing/first impressions, key features, pros, cons, and a final verdict/recommendation.`,
+            'hot-topic-finder': (input, voice) => `As a market research analyst, ${voice} identify 5 currently trending or highly-debated "hot topics" within the "${input}" niche that would make for engaging content.`,
+            'facebook-post-ideas': (input, voice) => `As a community manager, ${voice} generate 5 Facebook post ideas designed to spark conversation and engagement in a group focused on "${input}". Include a mix of questions, polls, and link-sharing prompts.`,
+            'blog-post-outline': (input, voice) => `As an expert writer, ${voice} create a well-structured, SEO-friendly blog post outline for the topic "${input}". Include H2 and H3 subheadings.`,
+            'default': (input, title, voice) => `Act as an expert AI assistant for a content creator. The user wants to use the "${title}" tool. ${voice} Generate a helpful, creative, and insightful response based on the following input: "${input}". Provide a high-quality, actionable result.`
+        };
+        
+        // --- Input Placeholder Cookbook (Expanded) ---
+        const placeholderCookbook = {
+            'viral-title-creator': 'e.g., a new AI tool for video editing',
+            'long-video-script-creator': 'e.g., The rise and fall of ancient Rome',
+            'short-video-script-creator': 'e.g., How to make the perfect cup of coffee in 30 seconds',
+            'social-bio-creator': 'e.g., I help busy professionals learn data science',
+            'logo-concept-brainstormer': 'e.g., A brand that sells sustainable, handmade soap',
+            'channel-name-generator': 'e.g., A YouTube channel about retro gaming',
+            'youtube-thumbnail-ideas': 'e.g., A video titled "I Lived on Only Water for 7 Days"',
+            'seo-keyword-generator': 'e.g., best budget travel tips for Europe',
+            'video-editing-tips': 'e.g., A talking-head video about financial advice',
+            'tiktok-video-ideas': 'e.g., a cooking channel focused on easy vegan recipes',
+            'instagram-post-ideas': 'e.g., a fitness influencer sharing a new workout',
+            'instagram-reels-ideas': 'e.g., a DIY home decor account',
+            'x-post-crafter': 'e.g., The future of remote work is not what you think',
+            'linkedin-post-ideas': 'e.g., a marketing manager sharing leadership tips',
+            'product-review-script': 'e.g., The new iPhone 16 Pro Max',
+            'hot-topic-finder': 'e.g., the world of cryptocurrency and NFTs',
+            'facebook-post-ideas': 'e.g., a community group for local gardeners',
+            'blog-post-outline': 'e.g., The ultimate guide to starting a podcast in 2025',
+            'default': (title) => `Enter your topic for the ${title}...`
+        };
+
+        // --- Next Step Workflow Map ---
+        const workflowMap = {
+            'viral-hook-generator': ['script-expander', 'headline-generator'],
+            'script-expander': ['tone-polisher', 'video-cta-script'],
+            'blog-post-intro-writer': ['storytelling-arc-builder', 'meta-description-generator'],
+            'audience-question-finder': ['viral-hook-generator', 'blog-post-intro-writer'],
+            'viral-title-creator': ['youtube-thumbnail-ideas', 'meta-description-generator'],
+            'blog-post-outline': ['blog-post-intro-writer', 'script-expander'],
+        };
+        
+        // --- Gamification Data ---
+        const levels = [
+            { name: 'Spark', xpRequired: 0, icon: 'sparkle' },
+            { name: 'Innovator', xpRequired: 100, icon: 'lightbulb' },
+            { name: 'Artisan', xpRequired: 300, icon: 'gem' },
+            { name: 'Maestro', xpRequired: 700, icon: 'crown' },
+            { name: 'Visionary', xpRequired: 1500, icon: 'star' }
+        ];
+
+        // --- App Context ---
+        const AppContext = createContext();
+
+        const AppProvider = ({ children }) => {
+            const [appLaunched, setAppLaunched] = useState(false);
+            const [xp, setXp] = useState(() => parseInt(localStorage.getItem('creatorSuiteXP') || '0'));
+            const [levelUpInfo, setLevelUpInfo] = useState(null);
+            const [projects, setProjects] = useState(() => JSON.parse(localStorage.getItem('creatorSuiteProjects') || '{}'));
+            const [activeProjectId, setActiveProjectId] = useState(null);
+
+            const currentLevel = useMemo(() => {
+                return [...levels].reverse().find(l => xp >= l.xpRequired) || levels[0];
+            }, [xp]);
+
+            const addXp = (amount) => {
+                const newXp = xp + amount;
+                const newLevel = [...levels].reverse().find(l => newXp >= l.xpRequired);
+                
+                if (newLevel && newLevel.name !== currentLevel.name) {
+                    setLevelUpInfo(newLevel);
+                }
+                
+                setXp(newXp);
+                localStorage.setItem('creatorSuiteXP', newXp);
+            };
+
+            const saveProject = (projectData) => {
+                const newProjects = {...projects, [projectData.id]: projectData};
+                setProjects(newProjects);
+                localStorage.setItem('creatorSuiteProjects', JSON.stringify(newProjects));
+            };
+
+            const addGenerationToProject = (projectId, generation) => {
+                if (!projectId || !projects[projectId]) return;
+                const updatedProject = {
+                    ...projects[projectId],
+                    generations: [...projects[projectId].generations, generation]
+                };
+                saveProject(updatedProject);
+            };
+
+            useEffect(() => {
+                const timer = setTimeout(() => lucide.createIcons(), 0);
+                return () => clearTimeout(timer);
+            }, [appLaunched, levelUpInfo]);
+
+            const value = { appLaunched, setAppLaunched, xp, addXp, currentLevel, levelUpInfo, setLevelUpInfo, projects, saveProject, activeProjectId, setActiveProjectId, addGenerationToProject };
+            return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+        };
+
+        // --- Reusable Components ---
+        const Icon = ({ name, className }) => <i data-lucide={name} className={className}></i>;
+        
+        const ToolCard = ({ tool, onLaunch }) => {
+            const primaryCategoryKey = tool.platforms.find(p => p !== 'all') || 'all';
+            const categoryColor = categories[primaryCategoryKey]?.color || '#6366f1';
+            
+            return (
+                <div onClick={() => onLaunch(tool)} className="tool-card group cursor-pointer" style={{'--card-color': categoryColor}}>
+                    <div className="p-5 relative flex flex-col h-full">
+                        <div className="flex justify-between items-start">
+                            <div className="tool-card-icon-wrapper w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: `linear-gradient(to bottom right, var(--card-color)20, var(--card-color)10)` }}>
+                                <Icon name={tool.icon} className="w-6 h-6" style={{ color: `var(--card-color)` }} />
+                            </div>
+                            <div className="flex space-x-1">
+                                {tool.platforms
+                                    .filter(p => p !== 'content-engine' && p !== 'creator-business' && p !== 'advanced-writing' && p !== 'podcasting' && p !== 'e-commerce' && p !== 'legal')
+                                    .slice(0, 3)
+                                    .map(p => <Icon key={p} name={categories[p]?.icon || 'help-circle'} className="w-3.5 h-3.5 text-slate-400" />)
+                                }
+                            </div>
+                        </div>
+                        <h3 className="text-md font-bold text-slate-800 mt-4 mb-1">{tool.title}</h3>
+                        <p className="text-slate-500 text-xs leading-relaxed flex-grow">{tool.description}</p>
+                    </div>
+                </div>
+            );
+        };
+        
+        const ToolLaunchModal = ({ tool, onLaunch, onClose }) => {
+            const { addXp, activeProjectId, addGenerationToProject } = useContext(AppContext);
+            const [inputValue, setInputValue] = useState(tool.prefilledInput || '');
+            const [outputValue, setOutputValue] = useState('');
+            const [isGenerating, setIsGenerating] = useState(false);
+            const [showAd, setShowAd] = useState(false);
+            const [error, setError] = useState(null);
+            const [copyText, setCopyText] = useState('Copy');
+            const outputRef = useRef(null);
+            const [brandVoice, setBrandVoice] = useState({});
+
+            useEffect(() => {
+                const savedVoice = localStorage.getItem('creatorSuiteBrandVoice');
+                if (savedVoice) {
+                    setBrandVoice(JSON.parse(savedVoice));
+                }
+            }, []);
+
+            const categoryColor = categories[tool.platforms.find(p => p !== 'all') || 'all']?.color || '#6366f1';
+            const placeholder = placeholderCookbook[tool.id] || placeholderCookbook['default'](tool.title);
+            const nextSteps = workflowMap[tool.id] || [];
+
+            const handleGenerate = async () => {
+                if (!inputValue.trim()) return;
+                setIsGenerating(true);
+                setShowAd(true);
+                setError(null);
+                setOutputValue('');
+                
+                setTimeout(() => setShowAd(false), 2500); 
+
+                const voiceProfile = brandVoice.tone || brandVoice.audience || brandVoice.keywords ? 
+                    `Apply the following brand voice: My tone is "${brandVoice.tone || 'not specified'}". My audience is "${brandVoice.audience || 'not specified'}". My core keywords are "${brandVoice.keywords || 'not specified'}".` : '';
+
+                const promptBuilder = promptCookbook[tool.id] || promptCookbook['default'];
+                const finalPrompt = promptBuilder(inputValue, tool.title, voiceProfile);
+                try {
+                    const apiKey = "AIzaSyBqkydrLg2xRGsuYnoiy4mtkZy_uytfgZU"; 
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                    
+                    const payload = {
+                        contents: [{ role: "user", parts: [{ text: finalPrompt }] }]
+                    };
+                    
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(result.error?.message || `API Error: ${response.statusText}`);
+                    }
+                    
+                    if (result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
+                        const aiResult = result.candidates[0].content.parts[0].text;
+                        setOutputValue(aiResult);
+                        addXp(10);
+                        if (activeProjectId) {
+                            addGenerationToProject(activeProjectId, {
+                                toolId: tool.id,
+                                toolTitle: tool.title,
+                                input: inputValue,
+                                output: aiResult,
+                                timestamp: new Date().toISOString()
+                            });
+                        }
+                    } else {
+                        const blockReason = result.candidates?.[0]?.finishReason;
+                        throw new Error(blockReason ? `Generation blocked: ${blockReason}` : "Unexpected API response format.");
+                    }
+                } catch (err) {
+                    setError(`An error occurred: ${err.message}`);
+                    console.error(err);
+                } finally {
+                    setTimeout(() => setIsGenerating(false), 2500);
+                }
+            };
+            
+            const handleCopy = () => {
+                if (outputRef.current?.innerText) {
+                    navigator.clipboard.writeText(outputRef.current.innerText)
+                        .then(() => {
+                            setCopyText('Copied!');
+                            setTimeout(() => setCopyText('Copy'), 2000);
+                        })
+                        .catch(err => console.error('Copy failed', err));
+                }
+            };
+
+            const handleNextStep = (nextToolId) => {
+                const nextTool = allTools.find(t => t.id === nextToolId);
+                if (nextTool) {
+                    onClose();
+                    setTimeout(() => onLaunch({...nextTool, prefilledInput: outputValue}), 300);
+                }
+            };
+            
+            useEffect(() => {
+                setTimeout(() => lucide.createIcons(), 0);
+            }, [isGenerating, outputValue]);
+
+
+            return (
+                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4 modal-backdrop" onClick={onClose}>
+                    <div className="bg-slate-50 rounded-3xl shadow-2xl w-full max-w-2xl flex flex-col modal-content" onClick={(e) => e.stopPropagation()}>
+                        <header className="p-4 border-b border-slate-200 flex justify-between items-center flex-shrink-0">
+                            <div className="flex items-center space-x-3">
+                                <div className="bg-indigo-600 text-white p-1 rounded-md"><Icon name="sparkles" className="w-5 h-5" /></div>
+                                <h2 className="text-lg font-bold">CreatorSuite</h2>
+                            </div>
+                            <button onClick={onClose} className="p-2 rounded-full hover:bg-slate-100 text-slate-500">
+                                <Icon name="x" className="w-5 h-5"/>
+                            </button>
+                        </header>
+
+                        <div className="flex-1 p-6 overflow-y-auto">
+                            <div className="text-center mb-6">
+                                <div className="inline-block w-16 h-16 mb-3 rounded-2xl flex items-center justify-center" style={{ background: `linear-gradient(to bottom right, ${categoryColor}20, ${categoryColor}10)` }}>
+                                    <Icon name={tool.icon} className="w-8 h-8" style={{ color: categoryColor }} />
+                                </div>
+                                <h3 className="text-xl font-bold">{tool.title}</h3>
+                                <p className="text-slate-500 text-sm mt-1">This tool helps you: {tool.description}</p>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="text-sm font-semibold text-slate-700">Your Input</label>
+                                    <textarea value={inputValue} onChange={e => setInputValue(e.target.value)} className="mt-1 w-full h-24 p-3 border bg-white border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder={placeholder}></textarea>
+                                </div>
+                                
+                                <button onClick={handleGenerate} disabled={isGenerating} className="w-full bg-indigo-600 text-white font-semibold py-3 px-6 rounded-xl hover:bg-indigo-700 transition-colors flex items-center justify-center space-x-2 disabled:opacity-70 disabled:cursor-wait">
+                                    <Icon name={isGenerating ? 'loader-2' : 'sparkles'} className={`w-5 h-5 ${isGenerating ? 'animate-spin' : ''}`}/>
+                                    <span>{isGenerating ? 'Generating...' : 'Generate'}</span>
+                                </button>
+                                
+                                <div className="min-h-[150px] border-t border-slate-200 pt-4 mt-4">
+                                    {isGenerating && showAd ? (
+                                        <div className="w-full h-full bg-slate-100 rounded-xl flex flex-col items-center justify-center text-center p-4 fade-in">
+                                            <p className="text-xs font-semibold text-slate-400 mb-2">ADVERTISEMENT</p>
+                                            <p className="text-slate-500">Your results are being generated...</p>
+                                            <div className="my-2 w-24 h-24 bg-slate-200 rounded-lg animate-pulse"></div>
+                                        </div>
+                                    ) : !isGenerating && outputValue ? (
+                                        <div>
+                                            <div className="flex justify-between items-center mb-2">
+                                                <h3 className="font-semibold">AI Result:</h3>
+                                                <button onClick={handleCopy} className="text-xs font-semibold text-indigo-600 bg-indigo-100 px-2 py-1 rounded-md hover:bg-indigo-200">{copyText}</button>
+                                            </div>
+                                            <div ref={outputRef} className="bg-white p-4 rounded-xl border border-slate-200 text-slate-600 prose prose-sm max-w-none max-h-[250px] overflow-y-auto" dangerouslySetInnerHTML={{ __html: outputValue.replace(/\n/g, '<br />') }}></div>
+                                            
+                                            {nextSteps.length > 0 && (
+                                                <div className="mt-4 pt-4 border-t border-slate-200">
+                                                    <h4 className="text-sm font-semibold mb-2">Next Steps:</h4>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {nextSteps.map(stepId => {
+                                                            const nextTool = allTools.find(t => t.id === stepId);
+                                                            return nextTool ? (
+                                                                <button key={stepId} onClick={() => handleNextStep(stepId)} className="text-xs font-semibold text-indigo-600 bg-indigo-100 px-3 py-1.5 rounded-lg hover:bg-indigo-200 flex items-center space-x-1.5">
+                                                                    <Icon name={nextTool.icon} className="w-3.5 h-3.5" />
+                                                                    <span>{nextTool.title}</span>
+                                                                </button>
+                                                            ) : null;
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : error ? (
+                                        <div className="text-center text-red-500 p-4">{error}</div>
+                                    ) : (
+                                        !isGenerating && <div className="text-center text-slate-400 p-4">Your AI results will appear here.</div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const BrandVoiceModal = ({ onClose }) => {
+            const [voice, setVoice] = useState(() => {
+                const saved = localStorage.getItem('creatorSuiteBrandVoice');
+                return saved ? JSON.parse(saved) : { tone: '', audience: '', keywords: '' };
+            });
+            const [saveText, setSaveText] = useState('Save Voice');
+
+            const handleChange = (e) => {
+                setVoice({ ...voice, [e.target.name]: e.target.value });
+            };
+
+            const handleSave = () => {
+                localStorage.setItem('creatorSuiteBrandVoice', JSON.stringify(voice));
+                setSaveText('Saved!');
+                setTimeout(() => {
+                    setSaveText('Save Voice');
+                    onClose();
+                }, 1000);
+            };
+
+            return (
+                 <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4 modal-backdrop" onClick={onClose}>
+                    <div className="bg-slate-50 rounded-3xl shadow-2xl w-full max-w-lg flex flex-col modal-content" onClick={(e) => e.stopPropagation()}>
+                         <header className="p-4 border-b border-slate-200 flex justify-between items-center flex-shrink-0">
+                            <div className="flex items-center space-x-3">
+                                <Icon name="voicemail" className="w-5 h-5 text-indigo-600" />
+                                <h2 className="text-lg font-bold">My Brand Voice</h2>
+                            </div>
+                            <button onClick={onClose} className="p-2 rounded-full hover:bg-slate-100 text-slate-500">
+                                <Icon name="x" className="w-5 h-5"/>
+                            </button>
+                        </header>
+                        <div className="p-6 space-y-4">
+                            <p className="text-sm text-slate-500">Define your brand once, and the AI will tailor its responses to match your style. This is saved in your browser.</p>
+                            <div>
+                                <label className="text-sm font-semibold text-slate-700">My writing tone is...</label>
+                                <input type="text" name="tone" value={voice.tone} onChange={handleChange} className="mt-1 w-full p-2 border bg-white border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g., Witty, professional, and slightly sarcastic" />
+                            </div>
+                             <div>
+                                <label className="text-sm font-semibold text-slate-700">My target audience is...</label>
+                                <input type="text" name="audience" value={voice.audience} onChange={handleChange} className="mt-1 w-full p-2 border bg-white border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g., Beginner photographers and hobbyists" />
+                            </div>
+                             <div>
+                                <label className="text-sm font-semibold text-slate-700">Keywords I always mention...</label>
+                                <input type="text" name="keywords" value={voice.keywords} onChange={handleChange} className="mt-1 w-full p-2 border bg-white border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g., AI, productivity, SaaS, creator economy" />
+                            </div>
+                            <button onClick={handleSave} className="w-full bg-indigo-600 text-white font-semibold py-3 px-6 rounded-xl hover:bg-indigo-700 transition-colors">
+                                {saveText}
+                            </button>
+                        </div>
+                    </div>
+                 </div>
+            );
+        };
+
+        const LevelUpModal = ({ level, onClose }) => {
+            useEffect(() => {
+                setTimeout(() => lucide.createIcons(), 0);
+            }, []);
+
+            return (
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-50 flex items-center justify-center p-4 modal-backdrop" onClick={onClose}>
+                    <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md flex flex-col items-center text-center p-8 modal-content relative overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                        <div className="absolute top-0 left-0 w-full h-full opacity-10">
+                            <div className="orb-container !relative">
+                                <div className="orb orb-1 !bg-indigo-500"></div>
+                                <div className="orb orb-2 !bg-pink-500"></div>
+                            </div>
+                        </div>
+                        <p className="font-semibold text-indigo-500 mb-2">LEVEL UP!</p>
+                        <div className="w-24 h-24 mb-4 rounded-full flex items-center justify-center bg-indigo-100 border-4 border-white shadow-lg">
+                            <Icon name={level.icon} className="w-12 h-12 text-indigo-600" />
+                        </div>
+                        <h2 className="text-3xl font-extrabold text-slate-800">You are now a {level.name}!</h2>
+                        <p className="text-slate-500 mt-2 mb-6">You've unlocked new abilities and are one step closer to mastering your craft.</p>
+                        <button onClick={onClose} className="w-full bg-indigo-600 text-white font-semibold py-3 px-6 rounded-xl hover:bg-indigo-700 transition-colors">
+                            Keep Creating
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        const XPProgressBar = () => {
+            const { xp, currentLevel } = useContext(AppContext);
+            
+            const nextLevel = levels.find(l => l.xpRequired > currentLevel.xpRequired);
+            const xpForNextLevel = nextLevel ? nextLevel.xpRequired - currentLevel.xpRequired : 0;
+            const xpProgress = xp - currentLevel.xpRequired;
+            const progressPercentage = xpForNextLevel > 0 ? (xpProgress / xpForNextLevel) * 100 : 100;
+
+            return (
+                <div className="bg-white/70 backdrop-blur-sm border border-slate-200 p-2 rounded-full shadow-sm flex items-center space-x-3">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center bg-indigo-100">
+                        <Icon name={currentLevel.icon} className="w-5 h-5 text-indigo-600" />
+                    </div>
+                    <div className="flex-1">
+                        <p className="text-xs font-bold text-slate-700">{currentLevel.name}</p>
+                        <div className="w-full bg-slate-200 rounded-full h-1.5 mt-1">
+                            <div className="bg-indigo-500 h-1.5 rounded-full xp-bar-inner" style={{ width: `${progressPercentage}%` }}></div>
+                        </div>
+                    </div>
+                </div>
+            )
+        };
+        
+        const MainApp = () => {
+            const { levelUpInfo, setLevelUpInfo } = useContext(AppContext);
+            const [activeFilter, setActiveFilter] = useState('all');
+            const [launchingTool, setLaunchingTool] = useState(null);
+            const [showVoiceModal, setShowVoiceModal] = useState(false);
+
+            const filteredTools = useMemo(() => {
+                let tools = allTools;
+                if (activeFilter !== 'all') { tools = tools.filter(tool => tool.platforms.includes(activeFilter)); }
+                return tools;
+            }, [activeFilter]);
+
+            return (
+                <div className="min-h-screen relative">
+                    {launchingTool && <ToolLaunchModal tool={launchingTool} onClose={() => setLaunchingTool(null)} onLaunch={setLaunchingTool} />}
+                    {showVoiceModal && <BrandVoiceModal onClose={() => setShowVoiceModal(false)} />}
+                    {levelUpInfo && <LevelUpModal level={levelUpInfo} onClose={() => setLevelUpInfo(null)} />}
+                    <main>
+                        <header className="py-12 px-8 fade-in-up">
+                            <div className="max-w-7xl mx-auto text-center relative">
+                                <div className="absolute top-0 right-0 flex items-center gap-2">
+                                    <XPProgressBar />
+                                    <button onClick={() => setShowVoiceModal(true)} className="bg-white/70 backdrop-blur-sm border border-slate-200 p-3 rounded-full shadow-sm hover:scale-110 transition-transform">
+                                        <Icon name="voicemail" className="w-5 h-5 text-indigo-600"/>
+                                    </button>
+                                </div>
+                                <h1 className="text-4xl md:text-5xl font-extrabold tracking-tighter">
+                                    The <span className="gradient-text">All-in-One AI Toolkit</span> for Creators
+                                </h1>
+                                <p className="max-w-2xl mx-auto mt-4 text-lg text-slate-600">
+                                    Instantly access over 100 AI tools to brainstorm ideas, write content, and grow your brand.
+                                </p>
+                            </div>
+                        </header>
+                        
+                        <div className="sticky top-0 bg-f7f8fc/80 backdrop-blur-lg z-10 py-4 px-8 fade-in-up delay-100">
+                             <div className="max-w-4xl mx-auto">
+                                <div className="flex items-center bg-white/70 border border-slate-200 rounded-full p-1 shadow-sm overflow-x-auto beautiful-scrollbar">
+                                    {Object.entries(categories).map(([key, { title, icon, color }]) => (
+                                        <button key={key} onClick={() => setActiveFilter(key)}
+                                            className={`filter-button flex-shrink-0 flex items-center justify-center space-x-2 px-3 py-1.5 rounded-full text-xs font-semibold ${activeFilter === key ? 'text-white shadow filter-active-bg' : 'text-slate-600 hover:bg-slate-100'}`}
+                                            style={{backgroundImage: activeFilter === key ? `linear-gradient(to right, ${color}, ${categories[Object.keys(categories)[(Object.keys(categories).indexOf(key) + 1) % Object.keys(categories).length]].color})` : 'none' }}
+                                        >
+                                            <Icon name={icon} className="w-4 h-4" /><span>{title}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="px-8 py-10 fade-in-up delay-200">
+                            <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+                                {filteredTools.map(tool => <ToolCard key={tool.id} tool={tool} onLaunch={setLaunchingTool}/>)}
+                            </div>
+                            {filteredTools.length === 0 && (
+                                <div className="text-center py-20"><Icon name="search-x" className="w-16 h-16 mx-auto text-slate-300 mb-4" /><h3 className="text-2xl font-bold">No Tools Found</h3><p className="text-slate-500 mt-2">Try adjusting your filter or search query.</p></div>
+                            )}
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+        
+        const LandingPage = ({ onEnterApp }) => (
+            <div className="min-h-screen flex items-center justify-center text-center p-8">
+                <div className="fade-in-up">
+                    <div className="inline-flex items-center space-x-3 mb-4">
+                        <div className="bg-white/80 backdrop-blur-sm shadow-md p-2 rounded-lg"><Icon name="sparkles" className="w-8 h-8 text-indigo-600" /></div>
+                        <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">CreatorSuite</h1>
+                    </div>
+                    <p className="text-5xl md:text-7xl font-extrabold tracking-tighter max-w-4xl">
+                        The <span className="gradient-text">Ultimate AI Co-Pilot</span> for Your Content Empire.
+                    </p>
+                    <p className="max-w-2xl mx-auto mt-6 text-xl text-slate-600">
+                        Generate viral ideas, write perfect scripts, and manage your brand with over 100 specialized AI tools. Stop the burnout, start the growth.
+                    </p>
+                    <button onClick={onEnterApp} className="mt-10 bg-indigo-600 text-white font-semibold py-4 px-8 rounded-full hover:bg-indigo-700 transition-all text-lg shadow-lg hover:shadow-xl transform hover:scale-105">
+                        Launch the Suite &rarr;
+                    </button>
+                    <div className="mt-12">
+                        <p className="text-sm font-semibold text-slate-500 mb-4">WORKS WITH ALL YOUR FAVORITE PLATFORMS</p>
+                        <div className="flex justify-center items-center space-x-6">
+                            <Icon name="youtube" className="w-7 h-7 text-slate-400 hover:text-red-500 transition-colors"/>
+                            <Icon name="instagram" className="w-7 h-7 text-slate-400 hover:text-pink-500 transition-colors"/>
+                            <Icon name="twitter" className="w-7 h-7 text-slate-400 hover:text-sky-500 transition-colors"/>
+                            <Icon name="linkedin" className="w-7 h-7 text-slate-400 hover:text-blue-600 transition-colors"/>
+                            <Icon name="facebook" className="w-7 h-7 text-slate-400 hover:text-blue-700 transition-colors"/>
+                            <Icon name="pinterest" className="w-7 h-7 text-slate-400 hover:text-red-600 transition-colors"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        const App = () => {
+            const [appLaunched, setAppLaunched] = useState(false);
+            
+            useEffect(() => {
+                const timer = setTimeout(() => lucide.createIcons(), 0);
+                return () => clearTimeout(timer);
+            }, [appLaunched]);
+
+            return (
+                <div className="relative">
+                    <div className="orb-container">
+                        <div className="orb orb-1"></div>
+                        <div className="orb orb-2"></div>
+                        <div className="orb orb-3"></div>
+                    </div>
+                    <AppProvider>
+                        <AppContext.Consumer>
+                            {({ appLaunched, setAppLaunched }) => (
+                                appLaunched ? <MainApp /> : <LandingPage onEnterApp={() => setAppLaunched(true)} />
+                            )}
+                        </AppContext.Consumer>
+                    </AppProvider>
+                </div>
+            );
+        };
+        
+        const container = document.getElementById('root');
+        const root = ReactDOM.createRoot(container);
+        root.render(<App />);
+    </script>
+</body>
+</html>
 
