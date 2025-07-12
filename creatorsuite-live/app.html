@@ -147,7 +147,6 @@
             { id: 'blog-post-outline', platforms: ['blog', 'advanced-writing'], title: 'Blog Post Outline', description: 'Enter a topic to get a well-structured outline for your article.', icon: 'list' },
             
             // --- EXISTING TOOLS ---
-            // Ideation
             { id: 'niche-angle-finder', platforms: ['content-engine', 'youtube', 'blog'], title: 'Niche Angle Finder', description: 'Discover fresh, non-obvious angles for your content.', icon: 'compass' },
             { id: 'trend-forecaster', platforms: ['content-engine', 'youtube', 'tiktok'], title: 'Trend Forecaster', description: 'Find emerging topics and formats that are about to trend.', icon: 'trending-up' },
             { id: 'content-calendar-ideas', platforms: ['content-engine', 'instagram', 'tiktok', 'x-twitter'], title: 'Content Calendar Ideas', description: 'Enter your niche to get a week\'s worth of content ideas.', icon: 'calendar-days' },
@@ -167,8 +166,6 @@
             { id: 'explainer-video-script-outline', platforms: ['content-engine', 'youtube'], title: '"Explainer Video" Script Outline', description: 'A structure specifically for creating effective explainer videos.', icon: 'file-question' },
             { id: 'day-in-the-life-storyboard', platforms: ['content-engine', 'youtube', 'tiktok'], title: '"Day in the Life" Storyboard', description: 'Get a creative storyboard outline for a "day in the life" video.', icon: 'clapperboard' },
             { id: 'tutorial-outline-creator', platforms: ['content-engine', 'youtube', 'blog'], title: 'Tutorial Outline Creator', description: 'A step-by-step structure for creating effective "how-to" guides.', icon: 'list-ordered' },
-
-            // Writing & Creation
             { id: 'script-expander', platforms: ['content-engine', 'youtube', 'tiktok', 'podcasting'], title: 'Script & Caption Expander', description: 'Expand a bullet point into a fluent, conversational paragraph.', icon: 'pilcrow' },
             { id: 'tone-polisher', platforms: ['content-engine', 'blog', 'instagram', 'linkedin', 'advanced-writing'], title: 'Conversational Tone Polisher', description: 'Rewrite formal text to sound more friendly and engaging.', icon: 'smile' },
             { id: 'storytelling-arc-builder', platforms: ['content-engine', 'youtube', 'blog', 'podcasting'], title: 'Storytelling Arc Builder', description: 'Outline a classic storytelling arc for your narrative.', icon: 'git-commit' },
@@ -182,27 +179,19 @@
             { id: 'opening-line-generator', platforms: ['advanced-writing', 'podcasting'], title: 'Opening Line Generator', description: 'For a speech or video that needs to grab attention instantly.', icon: 'quote' },
             { id: 'closing-statement-writer', platforms: ['advanced-writing', 'podcasting'], title: 'Closing Statement Writer', description: 'End your content with a powerful, memorable conclusion.', icon: 'quote-off' },
             { id: 'evidence-suggester', platforms: ['advanced-writing', 'blog'], title: '"Evidence Needed" Suggester', description: 'Describe an argument to get suggestions on what stats to find.', icon: 'search-check' },
-            
-            // Podcasting
             { id: 'podcast-title-brainstormer', platforms: ['podcasting', 'youtube'], title: 'Podcast Episode Titles', description: 'Generate catchy, clickable, and SEO-friendly episode titles.', icon: 'podcast' },
             { id: 'podcast-segment-ideas', platforms: ['podcasting'], title: 'Podcast Segment Ideas', description: 'Enter a topic to get a structured episode outline.', icon: 'list-todo' },
             { id: 'interview-question-generator', platforms: ['podcasting', 'youtube'], title: 'Interview Question Generator', description: 'Get insightful, non-generic questions for your guest.', icon: 'mic-2' },
             { id: 'podcast-show-notes-writer', platforms: ['podcasting'], title: 'Podcast Show Notes Writer', description: 'Paste a summary to get clean, timestamped show notes.', icon: 'file-audio' },
             { id: 'ad-read-script-template', platforms: ['podcasting', 'creator-business'], title: 'Ad Read Script Template', description: 'A simple template generator for your podcast sponsorships.', icon: 'receipt-text' },
-
-            // E-commerce
             { id: 'product-naming-brainstormer', platforms: ['e-commerce', 'creator-business'], title: 'Product Naming Brainstormer', description: 'Enter a product concept to get a list of creative, brandable names.', icon: 'lightbulb' },
             { id: 'shopify-description-writer', platforms: ['e-commerce', 'creator-business'], title: 'Shopify Product Description', description: 'Generate persuasive, benefit-focused descriptions for e-commerce.', icon: 'shopping-cart' },
             { id: 'etsy-listing-optimizer', platforms: ['e-commerce', 'creator-business'], title: 'Etsy Listing Optimizer', description: 'Tailor your product description with keywords for the Etsy marketplace.', icon: 'store' },
             { id: 'promo-email-writer', platforms: ['e-commerce', 'creator-business'], title: 'Promotional Email Writer', description: 'Draft compelling emails for a product launch, sale, or restock.', icon: 'mail-plus' },
             { id: 'customer-support-replies', platforms: ['e-commerce', 'creator-business'], title: 'Customer Support Replies', description: 'Get polite templates for common customer questions.', icon: 'inbox' },
-
-            // Legal Templates
             { id: 'disclaimer-generator', platforms: ['legal', 'creator-business'], title: 'Basic Disclaimer Generator', description: 'Generate templates for affiliate links, sponsorships, or advice.', icon: 'gavel' },
             { id: 'privacy-policy-template', platforms: ['legal', 'creator-business'], title: 'Basic Privacy Policy Template', description: 'Create a simple privacy policy for a personal blog or website.', icon: 'file-lock-2' },
             { id: 'giveaway-rules-template', platforms: ['legal', 'instagram'], title: 'Giveaway Rules Template', description: 'A basic template for social media giveaway rules.', icon: 'scroll-text' },
-            
-            // ... (and so on, including all previous tools)
         ];
         
         // --- AI Prompt Cookbook (Expanded for new tools) ---
@@ -386,7 +375,7 @@
                 const promptBuilder = promptCookbook[tool.id] || promptCookbook['default'];
                 const finalPrompt = promptBuilder(inputValue, tool.title, voiceProfile);
                 try {
-                    const apiKey = "AIzaSyBqkydrLg2xRGsuYnoiy4mtkZy_uytfgZU"; 
+                    const apiKey = "YOUR_GEMINI_API_KEY_HERE"; 
                     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
                     
                     const payload = {
@@ -701,31 +690,11 @@
             );
         };
         
-       
-
         const App = () => {
-            const [appLaunched, setAppLaunched] = useState(false);
-            
-            useEffect(() => {
-                const timer = setTimeout(() => lucide.createIcons(), 0);
-                return () => clearTimeout(timer);
-            }, [appLaunched]);
-
             return (
-                <div className="relative">
-                    <div className="orb-container">
-                        <div className="orb orb-1"></div>
-                        <div className="orb orb-2"></div>
-                        <div className="orb orb-3"></div>
-                    </div>
-                    <AppProvider>
-                        <AppContext.Consumer>
-                            {({ appLaunched, setAppLaunched }) => (
-                                appLaunched ? <MainApp /> : <LandingPage onEnterApp={() => setAppLaunched(true)} />
-                            )}
-                        </AppContext.Consumer>
-                    </AppProvider>
-                </div>
+                <AppProvider>
+                    <MainApp />
+                </AppProvider>
             );
         };
         
@@ -735,4 +704,3 @@
     </script>
 </body>
 </html>
-
