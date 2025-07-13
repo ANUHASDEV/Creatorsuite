@@ -207,7 +207,6 @@
             );
         };
         
-        // --- NEW ANIMATED TRUSTED BY COMPONENT ---
         const TrustedByMarquee = () => {
             const logos = ['NicheNomad', 'GrowthMasters', 'ViralVantage', 'StudioMakers', 'TheArtisan', 'TechFlow', 'CreatorHQ', 'IdeaLab'];
             return (
@@ -228,7 +227,6 @@
             );
         };
 
-        // --- NEW SECTION COMPONENT ---
         const ToolCategory = ({ icon, title, tools, colorClass }) => (
             <div className="bg-slate-50/80 border border-slate-200/60 rounded-2xl p-6">
                 <div className="flex items-center space-x-3 mb-4">
@@ -271,6 +269,72 @@
             );
         };
 
+        const HowItWorksSection = () => {
+            const steps = [
+                {
+                    icon: 'voicemail',
+                    title: 'Define Your Voice',
+                    description: 'Tell CreatorSuite about your brand\'s unique style. The AI will learn to write just like you.'
+                },
+                {
+                    icon: 'wand-2',
+                    title: 'Choose Your Tool',
+                    description: 'Pick from over 100 specialized tools for any creative task, from writing blog posts to generating viral hooks.'
+                },
+                {
+                    icon: 'rocket',
+                    title: 'Create & Export',
+                    description: 'Generate high-quality content in seconds. Refine it, save it, and it\'s ready to be published.'
+                }
+            ];
+
+            return (
+                <div className="py-20 md:py-32 px-8">
+                    <div className="max-w-7xl mx-auto">
+                        <div className="text-center mb-16 max-w-3xl mx-auto">
+                            <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tighter">How It Works in 3 Simple Steps</h2>
+                            <p className="mt-4 text-lg text-slate-600">Get from idea to published content faster than ever before. Our intuitive workflow makes creation feel effortless.</p>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-16 relative">
+                            {/* Dotted line for desktop */}
+                            <div className="hidden md:block absolute top-1/2 left-0 w-full h-px -translate-y-1/2">
+                               <svg width="100%" height="2"><line x1="0" y1="1" x2="100%" y2="1" stroke="#cbd5e1" strokeWidth="2" strokeDasharray="8 8"/></svg>
+                            </div>
+                            {steps.map((step, index) => (
+                                <div key={index} className="text-center relative bg-white p-4 rounded-xl">
+                                    <div className="mb-4 inline-block bg-white p-4 rounded-full border-4 border-slate-100">
+                                        <div className="bg-indigo-100 text-indigo-600 w-16 h-16 rounded-full flex items-center justify-center">
+                                            <Icon name={step.icon} className="w-8 h-8" />
+                                        </div>
+                                    </div>
+                                    <h3 className="text-xl font-bold text-slate-800 mb-2">{step.title}</h3>
+                                    <p className="text-slate-500">{step.description}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+        
+        // --- NEW PRIVACY-FIRST SECTION ---
+        const PrivacyFirstSection = () => {
+            return (
+                <div className="py-20 md:py-32 px-8 gradient-bg">
+                    <div className="max-w-4xl mx-auto text-center">
+                        <div className="mb-6 inline-block bg-white p-4 rounded-full">
+                            <div className="bg-green-100 text-green-600 w-16 h-16 rounded-full flex items-center justify-center">
+                                <Icon name="shield-check" className="w-8 h-8" />
+                            </div>
+                        </div>
+                        <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tighter">Your Ideas Belong to You. Period.</h2>
+                        <p className="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">
+                            CreatorSuite is built privacy-first. All your data, from your brand voice to your generated content, is stored securely on your own device. No accounts, no logins, no cloud servers. Just you and your ideas.
+                        </p>
+                    </div>
+                </div>
+            );
+        };
 
         // --- Main App Component ---
         const App = () => {
@@ -309,10 +373,8 @@
                         </div>
                     </AnimatedSection>
                     
-                    {/* --- REPLACED STATIC LIST WITH ANIMATED MARQUEE --- */}
                     <TrustedByMarquee />
                     
-                    {/* Auto-scrolling social proof bar */}
                     <div className="py-12">
                         <div className="marquee-container w-full overflow-hidden">
                              <div className="marquee-content space-x-16">
@@ -345,10 +407,18 @@
                             </div>
                         </div>
                     </AnimatedSection>
+
+                    <AnimatedSection>
+                        <HowItWorksSection />
+                    </AnimatedSection>
                     
-                    {/* --- INSERTED NEW SECTION HERE --- */}
                     <AnimatedSection>
                         <ToolsShowcaseSection />
+                    </AnimatedSection>
+                    
+                    {/* --- NEW SECTION INSERTED HERE --- */}
+                    <AnimatedSection>
+                        <PrivacyFirstSection />
                     </AnimatedSection>
 
                     <AnimatedSection className="py-20 md:py-32 px-8">
