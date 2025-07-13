@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+]<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -20,6 +20,9 @@
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Marked.js for Markdown Parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
         body {
@@ -116,6 +119,12 @@
         .tool-card:hover .tool-card-icon-wrapper {
             transform: scale(1.1) rotate(-5deg);
         }
+
+        /* Styling for prose in results */
+        .prose-custom p { margin-bottom: 1rem; }
+        .prose-custom h1, .prose-custom h2, .prose-custom h3 { font-weight: 800; margin-bottom: 0.5rem; margin-top: 1.5rem; }
+        .prose-custom ul { list-style-position: inside; padding-left: 1rem; }
+        .prose-custom li { margin-bottom: 0.5rem; }
     </style>
 </head>
 <body>
@@ -344,6 +353,11 @@
                 }
                 setTimeout(() => lucide.createIcons(), 0);
             }, []);
+            
+            // Function to convert markdown to HTML
+            const renderMarkdown = (text) => {
+                return marked.parse(text);
+            };
 
             const categoryColor = categories[tool.platforms.find(p => p !== 'all') || 'all']?.color || '#6366f1';
             const placeholder = placeholderCookbook[tool.id] || placeholderCookbook['default'](tool.title);
@@ -419,77 +433,75 @@
                 setTimeout(() => lucide.createIcons(), 0);
             }, [isGenerating, outputValue]);
 
-
             return (
                 <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4 modal-backdrop" onClick={onClose}>
-                    <div className="bg-slate-50 rounded-3xl shadow-2xl w-full max-w-2xl flex flex-col modal-content" onClick={(e) => e.stopPropagation()}>
-                        <header className="p-4 border-b border-slate-200 flex justify-between items-center flex-shrink-0">
-                            <div className="flex items-center space-x-3">
-                                <div className="bg-indigo-600 text-white p-1 rounded-md"><Icon name="sparkles" className="w-5 h-5" /></div>
-                                <h2 className="text-lg font-bold">CreatorSuite</h2>
-                            </div>
-                            <button onClick={onClose} className="p-2 rounded-full hover:bg-slate-100 text-slate-500">
-                                <Icon name="x" className="w-5 h-5"/>
-                            </button>
-                        </header>
-
-                        <div className="flex-1 p-6 overflow-y-auto">
+                    <div className="bg-slate-50 rounded-3xl shadow-2xl w-full max-w-4xl flex h-[90vh] modal-content" onClick={(e) => e.stopPropagation()}>
+                        {/* Left Panel */}
+                        <div className="w-1/3 bg-white/50 border-r border-slate-200/80 rounded-l-3xl p-6 flex flex-col">
                             <div className="text-center mb-6">
                                 <div className="inline-block w-16 h-16 mb-3 rounded-2xl flex items-center justify-center" style={{ background: `linear-gradient(to bottom right, ${categoryColor}20, ${categoryColor}10)` }}>
                                     <Icon name={tool.icon} className="w-8 h-8" style={{ color: categoryColor }} />
                                 </div>
-                                <h3 className="text-xl font-bold">{tool.title}</h3>
-                                <p className="text-slate-500 text-sm mt-1">This tool helps you: {tool.description}</p>
+                                <h3 className="text-xl font-bold text-slate-800">{tool.title}</h3>
+                                <p className="text-slate-500 text-sm mt-1">{tool.description}</p>
                             </div>
-
-                            <div className="space-y-4">
+                            <div className="flex-grow space-y-4">
                                 <div>
                                     <label className="text-sm font-semibold text-slate-700">Your Input</label>
-                                    <textarea value={inputValue} onChange={e => setInputValue(e.target.value)} className="mt-1 w-full h-24 p-3 border bg-white border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder={placeholder}></textarea>
+                                    <textarea value={inputValue} onChange={e => setInputValue(e.target.value)} className="mt-1 w-full h-32 p-3 border bg-white border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder={placeholder}></textarea>
                                 </div>
-                                
-                                <button onClick={handleGenerate} disabled={isGenerating} className="w-full bg-indigo-600 text-white font-semibold py-3 px-6 rounded-xl hover:bg-indigo-700 transition-colors flex items-center justify-center space-x-2 disabled:opacity-70 disabled:cursor-wait">
-                                    <Icon name={isGenerating ? 'loader-2' : 'sparkles'} className={`w-5 h-5 ${isGenerating ? 'animate-spin' : ''}`}/>
-                                    <span>{isGenerating ? 'Generating...' : 'Generate'}</span>
+                            </div>
+                            <button onClick={handleGenerate} disabled={isGenerating} className="w-full bg-indigo-600 text-white font-semibold py-3 px-6 rounded-xl hover:bg-indigo-700 transition-colors flex items-center justify-center space-x-2 disabled:opacity-70 disabled:cursor-wait">
+                                <Icon name={isGenerating ? 'loader-2' : 'sparkles'} className={`w-5 h-5 ${isGenerating ? 'animate-spin' : ''}`}/>
+                                <span>{isGenerating ? 'Generating...' : 'Generate'}</span>
+                            </button>
+                        </div>
+                        {/* Right Panel */}
+                        <div className="w-2/3 p-6 flex flex-col">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="font-semibold text-slate-800 text-lg">AI Workbench</h3>
+                                <button onClick={handleCopy} className="text-sm font-semibold text-indigo-600 bg-indigo-100 px-3 py-1.5 rounded-lg hover:bg-indigo-200 flex items-center space-x-1.5">
+                                    <Icon name="copy" className="w-4 h-4" />
+                                    <span>{copyText}</span>
                                 </button>
-                                
-                                <div className="min-h-[150px] border-t border-slate-200 pt-4 mt-4">
-                                    {isGenerating ? (
-                                        <div className="w-full h-full rounded-xl flex flex-col items-center justify-center text-center p-4">
-                                            <p className="text-slate-500">Your results are being generated...</p>
-                                            <div className="my-2 w-24 h-24 bg-slate-200 rounded-lg animate-pulse"></div>
-                                        </div>
-                                    ) : outputValue ? (
-                                        <div>
-                                            <div className="flex justify-between items-center mb-2">
-                                                <h3 className="font-semibold">AI Result:</h3>
-                                                <button onClick={handleCopy} className="text-xs font-semibold text-indigo-600 bg-indigo-100 px-2 py-1 rounded-md hover:bg-indigo-200">{copyText}</button>
-                                            </div>
-                                            <div ref={outputRef} className="bg-white p-4 rounded-xl border border-slate-200 text-slate-600 prose prose-sm max-w-none max-h-[250px] overflow-y-auto" dangerouslySetInnerHTML={{ __html: outputValue.replace(/\n/g, '<br />') }}></div>
-                                            
-                                            {nextSteps.length > 0 && (
-                                                <div className="mt-4 pt-4 border-t border-slate-200">
-                                                    <h4 className="text-sm font-semibold mb-2">Next Steps:</h4>
-                                                    <div className="flex flex-wrap gap-2">
-                                                        {nextSteps.map(stepId => {
-                                                            const nextTool = allTools.find(t => t.id === stepId);
-                                                            return nextTool ? (
-                                                                <button key={stepId} onClick={() => handleNextStep(stepId)} className="text-xs font-semibold text-indigo-600 bg-indigo-100 px-3 py-1.5 rounded-lg hover:bg-indigo-200 flex items-center space-x-1.5">
-                                                                    <Icon name={nextTool.icon} className="w-3.5 h-3.5" />
-                                                                    <span>{nextTool.title}</span>
-                                                                </button>
-                                                            ) : null;
-                                                        })}
-                                                    </div>
+                            </div>
+                            <div className="flex-grow bg-white rounded-xl border border-slate-200 p-4 overflow-y-auto beautiful-scrollbar">
+                                {isGenerating ? (
+                                    <div className="w-full h-full flex flex-col items-center justify-center text-center p-4">
+                                        <Icon name="bot" className="w-16 h-16 text-indigo-300 animate-pulse" />
+                                        <p className="text-slate-500 mt-4 text-lg">Our AI is crafting your content...</p>
+                                        <p className="text-slate-400 text-sm">This should only take a moment.</p>
+                                    </div>
+                                ) : outputValue ? (
+                                    <div>
+                                        <div ref={outputRef} className="prose prose-custom max-w-none text-slate-700" dangerouslySetInnerHTML={{ __html: renderMarkdown(outputValue) }}></div>
+                                        
+                                        {nextSteps.length > 0 && (
+                                            <div className="mt-6 pt-6 border-t border-slate-200">
+                                                <h4 className="text-md font-semibold mb-3 text-slate-800">Continue Your Workflow:</h4>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {nextSteps.map(stepId => {
+                                                        const nextTool = allTools.find(t => t.id === stepId);
+                                                        return nextTool ? (
+                                                            <button key={stepId} onClick={() => handleNextStep(stepId)} className="text-sm font-semibold text-indigo-600 bg-indigo-100 px-3 py-1.5 rounded-lg hover:bg-indigo-200 flex items-center space-x-1.5">
+                                                                <Icon name={nextTool.icon} className="w-4 h-4" />
+                                                                <span>{nextTool.title}</span>
+                                                            </button>
+                                                        ) : null;
+                                                    })}
                                                 </div>
-                                            )}
-                                        </div>
-                                    ) : error ? (
-                                        <div className="text-center text-red-500 p-4">{error}</div>
-                                    ) : (
-                                        !isGenerating && <div className="text-center text-slate-400 p-4">Your AI results will appear here.</div>
-                                    )}
-                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : error ? (
+                                    <div className="text-center text-red-500 p-4 bg-red-50 rounded-xl border border-red-200 h-full flex items-center justify-center">{error}</div>
+                                ) : (
+                                    <div className="w-full h-full flex flex-col items-center justify-center text-center p-4 text-slate-400">
+                                        <Icon name="edit-3" className="w-16 h-16 text-slate-300 mb-4" />
+                                        <h3 className="text-xl font-bold text-slate-500">Your results will appear here</h3>
+                                        <p>Enter your topic and hit "Generate".</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
