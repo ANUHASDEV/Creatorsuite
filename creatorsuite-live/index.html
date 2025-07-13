@@ -5,18 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CreatorSuite - The All-in-One AI Toolkit for Creators</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- React and Babel -->
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -38,7 +34,7 @@
         }
 
         .gradient-bg {
-             background-image: linear-gradient(120deg, #f0f9ff 0%, #fdf2f8 100%);
+            background-image: linear-gradient(120deg, #f0f9ff 0%, #fdf2f8 100%);
         }
         
         .cta-gradient-bg {
@@ -57,14 +53,32 @@
             transform: translateY(0);
         }
         
-        /* Animated Mockup Styles */
-        @keyframes scroll-up {
-            0% { transform: translateY(0); }
-            50% { transform: translateY(-50%); }
-            100% { transform: translateY(0); }
+        /* Testimonial Animation */
+        .testimonial-card {
+            transition: opacity 500ms ease-in-out, transform 500ms ease-in-out;
         }
-        .mockup-content {
-            animation: scroll-up 20s ease-in-out infinite;
+        .testimonial-enter {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        .testimonial-exit {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+
+        /* Auto-scrolling marquee */
+        @keyframes marquee {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+        .marquee-content {
+            display: flex;
+            width: max-content; /* Let content determine width */
+            flex-shrink: 0;
+            animation: marquee 80s linear infinite;
+        }
+        .marquee-container:hover .marquee-content {
+            animation-play-state: paused;
         }
     </style>
 </head>
@@ -81,20 +95,16 @@
                 if (iconRef.current) {
                     lucide.createIcons({
                         nodes: [iconRef.current],
-                        attrs: {
-                            'class': className
-                        }
+                        attrs: { 'class': className }
                     });
                 }
             }, []);
             return <i data-lucide={name} ref={iconRef}></i>;
         };
 
-        // Custom hook for observing elements to trigger animations
         const useOnScreen = (options) => {
             const ref = useRef(null);
             const [isVisible, setIsVisible] = useState(false);
-
             useEffect(() => {
                 const observer = new IntersectionObserver(([entry]) => {
                     if (entry.isIntersecting) {
@@ -102,29 +112,16 @@
                         observer.unobserve(entry.target);
                     }
                 }, options);
-
                 const currentRef = ref.current;
-                if (currentRef) {
-                    observer.observe(currentRef);
-                }
-
-                return () => {
-                    if (currentRef) {
-                        observer.unobserve(currentRef);
-                    }
-                };
+                if (currentRef) observer.observe(currentRef);
+                return () => { if (currentRef) observer.unobserve(currentRef); };
             }, [ref, options]);
-
             return [ref, isVisible];
         };
 
         const AnimatedSection = ({ children, className }) => {
             const [ref, isVisible] = useOnScreen({ threshold: 0.1 });
-            return (
-                <div ref={ref} className={`${className} fade-in-section ${isVisible ? 'is-visible' : ''}`}>
-                    {children}
-                </div>
-            );
+            return <div ref={ref} className={`${className} fade-in-section ${isVisible ? 'is-visible' : ''}`}>{children}</div>;
         };
 
         const FeatureCard = ({ icon, title, description }) => (
@@ -154,6 +151,94 @@
             );
         };
 
+        const TestimonialCarousel = () => {
+            const testimonials = [
+                { name: 'Sarah L.', handle: '@SarahLTech', quote: 'CreatorSuite replaced three of my subscriptions. My workflow is faster and my content has never been better.', initial: 'S' },
+                { name: 'David C.', handle: '@DavidCreates', quote: 'The Viral Hook Generator is pure magic. My video views are up 50% since I started using it.', initial: 'D' },
+                { name: 'Maria G.', handle: '@MariaG_Writes', quote: 'As a blogger, the SEO and writing tools are indispensable. It saves me hours every week.', initial: 'M' },
+                { name: 'Alex R.', handle: '@AlexRunsBiz', quote: 'The business tools are a game-changer. I drafted a sponsorship pitch and landed a deal in the same day.', initial: 'A' },
+                { name: 'Jenna T.', handle: '@JennaTok', quote: 'I was hitting a creative wall. The TikTok idea generators gave me a month\'s worth of content in minutes.', initial: 'J' },
+            ];
+
+            const [index, setIndex] = useState(0);
+
+            useEffect(() => {
+                const interval = setInterval(() => {
+                    setIndex(prevIndex => (prevIndex + 1) % testimonials.length);
+                }, 5000); // Changed to 5 seconds per testimonial
+                return () => clearInterval(interval);
+            }, [testimonials.length]);
+
+            return (
+                <div className="relative h-64 md:h-56">
+                    {testimonials.map((testimonial, i) => (
+                        <div
+                            key={i}
+                            className={`testimonial-card absolute inset-0 transition-all duration-500 ${index === i ? 'opacity-100 translate-x-0' : 'opacity-0'}`}
+                            style={{transform: index === i ? 'translateX(0)' : (i > index ? 'translateX(20px)' : 'translateX(-20px)')}}
+                        >
+                            <div className="bg-slate-50/80 p-8 rounded-2xl shadow-lg border border-slate-200/60 h-full flex flex-col justify-center">
+                                <p className="text-lg md:text-xl text-slate-800 leading-relaxed">"{testimonial.quote}"</p>
+                                <div className="flex items-center mt-6">
+                                    <div className="w-12 h-12 rounded-full mr-4 bg-indigo-100 flex items-center justify-center">
+                                         <span className="text-xl font-bold text-indigo-600">{testimonial.initial}</span>
+                                    </div>
+                                    <div>
+                                        <p className="font-bold text-slate-900">{testimonial.name}</p>
+                                        <p className="text-sm text-slate-500">{testimonial.handle}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
+        };
+
+        // --- NEW SECTION COMPONENT ---
+        const ToolCategory = ({ icon, title, tools, colorClass }) => (
+            <div className="bg-slate-50/80 border border-slate-200/60 rounded-2xl p-6">
+                <div className="flex items-center space-x-3 mb-4">
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${colorClass.bg}`}>
+                        <Icon name={icon} className={`w-5 h-5 ${colorClass.text}`} />
+                    </div>
+                    <h3 className="font-bold text-slate-800 text-lg">{title}</h3>
+                </div>
+                <ul className="space-y-3">
+                    {tools.map((tool, index) => (
+                        <li key={index} className="flex items-center space-x-3">
+                            <Icon name="check-circle-2" className="w-4 h-4 text-indigo-500 flex-shrink-0" />
+                            <span className="text-slate-600">{tool}</span>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        );
+
+        const ToolsShowcaseSection = () => {
+            const categories = [
+                { icon: 'pencil-ruler', title: 'Write & Edit', tools: ['Blog Post Writer', 'Script Writer', 'Tweet Generator', 'Paraphraser'], color: { bg: 'bg-blue-100', text: 'text-blue-600' } },
+                { icon: 'lightbulb', title: 'Ideas & Angles', tools: ['Viral Hook Generator', 'YouTube Idea Finder', 'Niche Explorer', 'Content Improver'], color: { bg: 'bg-yellow-100', text: 'text-yellow-600' } },
+                { icon: 'briefcase', title: 'Business & SEO', tools: ['SEO Optimizer', 'Brand Name Generator', 'Sponsorship Pitch', 'Product Description'], color: { bg: 'bg-green-100', text: 'text-green-600' } },
+                { icon: 'wand-2', title: 'Fun & Creative', tools: ['Analogy Generator', 'Song & Poem Writer', 'Story Generator', 'DALL-E Prompt Wizard'], color: { bg: 'bg-purple-100', text: 'text-purple-600' } }
+            ];
+
+            return (
+                <div className="py-20 md:py-32 px-8">
+                    <div className="max-w-7xl mx-auto">
+                        <div className="text-center mb-16 max-w-3xl mx-auto">
+                            <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tighter">The Creator's Swiss Army Knife</h2>
+                            <p className="mt-4 text-lg text-slate-600">CreatorSuite is packed with over 100+ specialized AI tools, organized into intuitive categories. Here's just a glimpse of what's inside.</p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                            {categories.map(cat => <ToolCategory key={cat.title} icon={cat.icon} title={cat.title} tools={cat.tools} colorClass={cat.color} />)}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+
         // --- Main App Component ---
         const App = () => {
             return (
@@ -161,18 +246,17 @@
                     <header className="absolute top-0 left-0 right-0 p-8 z-10">
                         <div className="max-w-7xl mx-auto flex justify-between items-center">
                              <div className="flex items-center space-x-2">
-                                <div className="bg-slate-900 text-white p-2 rounded-lg"><Icon name="sparkles" className="w-6 h-6" /></div>
-                                <span className="text-2xl font-bold text-slate-900">CreatorSuite</span>
-                            </div>
+                                 <div className="bg-slate-900 text-white p-2 rounded-lg"><Icon name="sparkles" className="w-6 h-6" /></div>
+                                 <span className="text-2xl font-bold text-slate-900">CreatorSuite</span>
+                             </div>
                              <a href="./app.html" className="hidden md:inline-block bg-slate-900 text-white font-semibold py-2 px-5 rounded-lg hover:bg-indigo-600 transition-colors">
-                                Launch App
-                            </a>
+                                 Launch App
+                             </a>
                         </div>
                     </header>
 
-                    {/* Hero Section */}
                     <AnimatedSection className="py-28 md:py-40 px-8">
-                        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                             <div>
                                 <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tighter">
                                     The All-in-One <span className="gradient-text">Creator Stack</span>
@@ -186,19 +270,12 @@
                                     </a>
                                 </div>
                             </div>
-                            <div className="bg-slate-100 rounded-2xl p-4 border border-slate-200 h-96 overflow-hidden shadow-lg">
-                                <div className="h-full w-full bg-white rounded-lg shadow-inner overflow-hidden">
-                                    <div className="mockup-content space-y-2 p-4">
-                                        {Array(10).fill(0).map((_, i) => (
-                                            <div key={i} className={`h-10 bg-slate-200 rounded animate-pulse ${i % 3 === 0 ? 'w-full' : i % 3 === 1 ? 'w-5/6' : 'w-4/6'}`}></div>
-                                        ))}
-                                    </div>
-                                </div>
+                            <div className="mt-10 lg:mt-0">
+                                <TestimonialCarousel />
                             </div>
                         </div>
                     </AnimatedSection>
                     
-                    {/* Trusted By Section */}
                     <AnimatedSection className="py-12 px-8">
                         <div className="max-w-5xl mx-auto text-center">
                             <p className="text-sm font-semibold text-slate-500 uppercase tracking-widest">Trusted by the next generation of creators</p>
@@ -212,8 +289,26 @@
                             </div>
                         </div>
                     </AnimatedSection>
+                    
+                    {/* Auto-scrolling social proof bar */}
+                    <div className="py-12">
+                        <div className="marquee-container w-full overflow-hidden">
+                             <div className="marquee-content space-x-16">
+                                 {[...Array(2)].map((_, i) => (
+                                     <React.Fragment key={i}>
+                                         <div className="flex items-center space-x-3 text-slate-500"><Icon name="youtube" className="w-7 h-7"/> <span className="text-lg font-semibold">YouTube</span></div>
+                                         <div className="flex items-center space-x-3 text-slate-500"><Icon name="instagram" className="w-7 h-7"/> <span className="text-lg font-semibold">Instagram</span></div>
+                                         <div className="flex items-center space-x-3 text-slate-500"><Icon name="twitter" className="w-7 h-7"/> <span className="text-lg font-semibold">X / Twitter</span></div>
+                                         <div className="flex items-center space-x-3 text-slate-500"><Icon name="linkedin" className="w-7 h-7"/> <span className="text-lg font-semibold">LinkedIn</span></div>
+                                         <div className="flex items-center space-x-3 text-slate-500"><Icon name="facebook" className="w-7 h-7"/> <span className="text-lg font-semibold">Facebook</span></div>
+                                         <div className="flex items-center space-x-3 text-slate-500"><Icon name="message-circle" className="w-7 h-7"/> <span className="text-lg font-semibold">Discord</span></div>
+                                         <div className="flex items-center space-x-3 text-slate-500"><Icon name="music" className="w-7 h-7"/> <span className="text-lg font-semibold">TikTok</span></div>
+                                     </React.Fragment>
+                                 ))}
+                             </div>
+                        </div>
+                    </div>
 
-                    {/* Features Section */}
                     <AnimatedSection className="py-20 md:py-32 px-8 gradient-bg">
                         <div className="max-w-5xl mx-auto">
                             <div className="text-center mb-16">
@@ -228,71 +323,23 @@
                             </div>
                         </div>
                     </AnimatedSection>
-
-                    {/* Alternating Sections */}
-                    <AnimatedSection className="py-20 md:py-32 px-8">
-                        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                            <div>
-                                <span className="text-indigo-600 font-semibold">Creator Journey</span>
-                                <h3 className="mt-2 text-3xl font-extrabold text-slate-900 tracking-tighter">Turn the Grind into a Game</h3>
-                                <p className="mt-4 text-slate-600">Stop fighting burnout. Our unique gamification system turns daily tasks into a rewarding experience. Earn XP for every tool you use, level up from a "Spark" to a "Visionary," and watch your motivation soar.</p>
-                            </div>
-                            <div className="bg-indigo-100 rounded-2xl p-8">
-                                <img src="https://placehold.co/600x400/e0e7ff/4f46e5?text=Gamification+UI" className="rounded-lg shadow-lg" alt="Gamification UI Mockup" />
-                            </div>
-                        </div>
-                    </AnimatedSection>
                     
-                    <AnimatedSection className="py-20 md:py-32 px-8">
-                        <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                             <div className="bg-fuchsia-100 rounded-2xl p-8 order-last md:order-first">
-                                <img src="https://placehold.co/600x400/fce7f3/be185d?text=My+Voice+UI" className="rounded-lg shadow-lg" alt="My Voice UI Mockup" />
-                            </div>
-                            <div>
-                                <span className="text-fuchsia-600 font-semibold">My Voice Engine</span>
-                                <h3 className="mt-2 text-3xl font-extrabold text-slate-900 tracking-tighter">An AI That Sounds Like You</h3>
-                                <p className="mt-4 text-slate-600">Stop spending hours editing generic AI content. Define your brand's unique tone, audience, and keywords once. CreatorSuite will then tailor every single output to match your personal style, saving you time and ensuring authenticity.</p>
-                            </div>
-                        </div>
+                    {/* --- INSERTED NEW SECTION HERE --- */}
+                    <AnimatedSection>
+                        <ToolsShowcaseSection />
                     </AnimatedSection>
 
-                    {/* Final CTA */}
-                    <AnimatedSection className="px-8 py-20">
-                        <div className="max-w-4xl mx-auto cta-gradient-bg rounded-3xl p-12 text-center text-white">
-                            <h2 className="text-4xl font-extrabold tracking-tighter">Revolutionize Your Workflow Today</h2>
-                            <p className="mt-4 max-w-xl mx-auto">Join thousands of creators who are saving time, beating burnout, and creating their best work ever.</p>
-                            <div className="mt-8">
-                                <a href="./app.html" className="inline-block bg-white text-slate-900 font-bold py-4 px-8 rounded-lg hover:bg-slate-200 transition-colors text-lg">
-                                    Launch for Free
-                                </a>
-                            </div>
-                        </div>
-                    </AnimatedSection>
-
-                    {/* FAQ Section */}
                     <AnimatedSection className="py-20 md:py-32 px-8">
-                        <div className="max-w-3xl mx-auto">
+                         <div className="max-w-3xl mx-auto">
                             <h2 className="text-4xl font-extrabold text-center mb-12 text-slate-900 tracking-tighter">Frequently Asked Questions</h2>
-                            <FAQItem 
-                                question="Is CreatorSuite really free?"
-                                answer="Yes! Our core suite of over 100 tools is completely free to use, supported by a non-intrusive advertising model. We plan to introduce an optional 'Pro' plan in the future for power users who want an ad-free experience and access to even more advanced features."
-                            />
-                            <FAQItem 
-                                question="How does the 'My Voice' feature work?"
-                                answer="It's simple! You fill out a short profile about your brand's tone and audience. This information is saved securely in your browser's local storage. When you use a tool, we add this context to our AI prompt, so the results are automatically tailored to your style."
-                            />
-                            <FAQItem 
-                                question="What kind of creators is this for?"
-                                answer="CreatorSuite is for everyone, from aspiring creators just starting out ('Sparks') to established professionals ('Artisans' and 'Maestros'). Our tools cover every major platform and every stage of the content creation process."
-                            />
-                             <FAQItem 
-                                question="Is my data safe?"
-                                answer="Absolutely. We've built CreatorSuite to be 'stateless.' All your personalization data, like your 'My Voice' profile and 'Creator Journey' progress, is stored only on your local device. It never touches our servers, ensuring your data remains private and secure."
-                            />
-                        </div>
+                            <FAQItem question="What kind of creators is CreatorSuite for?" answer="CreatorSuite is designed for a wide range of creators, including YouTubers, bloggers, social media managers, podcasters, and course creators. If you create content online, our tools can help streamline your workflow, from brainstorming viral ideas to writing scripts and optimizing for SEO."/>
+                            <FAQItem question="What are 'Creator Stacks'?" answer="Creator Stacks are our version of automated workflows. You can chain multiple AI tools together to perform a sequence of tasks. For example, you could create a 'Stack' that first generates a video idea, then writes a script for it, suggests a title, and finally drafts a promotional tweet—all in one click."/>
+                            <FAQItem question="Is CreatorSuite really free?" answer="Yes! Our core suite of over 100 tools is completely free to use. We believe everyone should have access to powerful creative tools. We plan to introduce an optional 'Pro' plan in the future with advanced features like team collaboration, unlimited usage, and access to premium AI models."/>
+                            <FAQItem question="How does the 'My Voice' feature work?" answer="It's simple! You provide a few examples of your writing or describe your brand's tone, style, and target audience. This profile is saved securely in your browser. When you use a tool, we provide this context to the AI, ensuring the output is tailored to sound just like you, maintaining brand consistency."/>
+                            <FAQItem question="Is my data and content safe?" answer="Absolutely. We've built CreatorSuite to be 'stateless.' Your 'My Voice' profile, saved content, and progress are stored only on your local device using your browser's local storage. Your data never touches our servers, giving you complete privacy and control over your creative work."/>
+                         </div>
                     </AnimatedSection>
 
-                    {/* Footer */}
                     <footer className="py-12 px-8 border-t border-slate-200">
                         <div className="max-w-7xl mx-auto text-center">
                             <div className="flex items-center justify-center space-x-2 mb-4">
@@ -300,13 +347,13 @@
                                 <p className="font-bold text-lg">CreatorSuite</p>
                             </div>
                              <div className="mt-8 flex justify-center space-x-6">
-                                <a href="#" className="text-slate-500 hover:text-indigo-500 transition-colors"><Icon name="twitter" className="w-5 h-5"/></a>
-                                <a href="#" className="text-slate-500 hover:text-indigo-500 transition-colors"><Icon name="youtube" className="w-5 h-5"/></a>
-                                <a href="#" className="text-slate-500 hover:text-indigo-500 transition-colors"><Icon name="instagram" className="w-5 h-5"/></a>
-                                <a href="#" className="text-slate-500 hover:text-indigo-500 transition-colors"><Icon name="facebook" className="w-5 h-5"/></a>
-                                <a href="#" className="text-slate-500 hover:text-indigo-500 transition-colors"><Icon name="message-circle" className="w-5 h-5"/></a>
-                                <a href="#" className="text-slate-500 hover:text-indigo-500 transition-colors"><Icon name="music" className="w-5 h-5"/></a>
-                            </div>
+                                 <a href="#" className="text-slate-500 hover:text-indigo-500 transition-colors"><Icon name="twitter" className="w-5 h-5"/></a>
+                                 <a href="#" className="text-slate-500 hover:text-indigo-500 transition-colors"><Icon name="youtube" className="w-5 h-5"/></a>
+                                 <a href="#" className="text-slate-500 hover:text-indigo-500 transition-colors"><Icon name="instagram" className="w-5 h-5"/></a>
+                                 <a href="#" className="text-slate-500 hover:text-indigo-500 transition-colors"><Icon name="facebook" className="w-5 h-5"/></a>
+                                 <a href="#" className="text-slate-500 hover:text-indigo-500 transition-colors"><Icon name="message-circle" className="w-5 h-5"/></a>
+                                 <a href="#" className="text-slate-500 hover:text-indigo-500 transition-colors"><Icon name="music" className="w-5 h-5"/></a>
+                             </div>
                             <p className="mt-8 text-slate-500">© {new Date().getFullYear()} CreatorSuite. All rights reserved.</p>
                             <p className="text-sm text-slate-400 mt-1">Built with ❤️ in Sri Lanka.</p>
                         </div>
