@@ -73,13 +73,25 @@
         }
         .marquee-content {
             display: flex;
-            width: max-content; /* Let content determine width */
+            width: max-content;
             flex-shrink: 0;
             animation: marquee 80s linear infinite;
         }
         .marquee-container:hover .marquee-content {
             animation-play-state: paused;
         }
+        
+        /* New styles for the trusted by marquee */
+        .marquee-content-slow {
+            display: flex;
+            width: max-content;
+            flex-shrink: 0;
+            animation: marquee 100s linear infinite;
+        }
+         .marquee-container:hover .marquee-content-slow {
+            animation-play-state: paused;
+        }
+
     </style>
 </head>
 <body>
@@ -194,6 +206,27 @@
                 </div>
             );
         };
+        
+        // --- NEW ANIMATED TRUSTED BY COMPONENT ---
+        const TrustedByMarquee = () => {
+            const logos = ['NicheNomad', 'GrowthMasters', 'ViralVantage', 'StudioMakers', 'TheArtisan', 'TechFlow', 'CreatorHQ', 'IdeaLab'];
+            return (
+                 <AnimatedSection className="py-12">
+                    <div className="max-w-7xl mx-auto text-center">
+                        <p className="text-sm font-semibold text-slate-500 uppercase tracking-widest mb-10">Trusted by the next generation of creators</p>
+                        <div className="marquee-container w-full overflow-hidden relative">
+                             <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
+                             <div className="marquee-content-slow space-x-20">
+                                 {[...logos, ...logos].map((logo, i) => (
+                                     <span key={i} className="text-2xl font-bold text-slate-400 flex-shrink-0">{logo}</span>
+                                 ))}
+                             </div>
+                             <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
+                        </div>
+                    </div>
+                </AnimatedSection>
+            );
+        };
 
         // --- NEW SECTION COMPONENT ---
         const ToolCategory = ({ icon, title, tools, colorClass }) => (
@@ -276,19 +309,8 @@
                         </div>
                     </AnimatedSection>
                     
-                    <AnimatedSection className="py-12 px-8">
-                        <div className="max-w-5xl mx-auto text-center">
-                            <p className="text-sm font-semibold text-slate-500 uppercase tracking-widest">Trusted by the next generation of creators</p>
-                            <div className="mt-8 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-y-4 gap-x-8 items-center">
-                                <span className="text-2xl font-bold text-slate-400">NicheNomad</span>
-                                <span className="text-2xl font-bold text-slate-400">GrowthMasters</span>
-                                <span className="text-2xl font-bold text-slate-400">ViralVantage</span>
-                                <span className="text-2xl font-bold text-slate-400">StudioMakers</span>
-                                <span className="text-2xl font-bold text-slate-400">TheArtisan</span>
-                                <span className="text-2xl font-bold text-slate-400">TechFlow</span>
-                            </div>
-                        </div>
-                    </AnimatedSection>
+                    {/* --- REPLACED STATIC LIST WITH ANIMATED MARQUEE --- */}
+                    <TrustedByMarquee />
                     
                     {/* Auto-scrolling social proof bar */}
                     <div className="py-12">
