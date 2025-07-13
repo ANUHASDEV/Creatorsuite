@@ -177,7 +177,7 @@
             useEffect(() => {
                 const interval = setInterval(() => {
                     setIndex(prevIndex => (prevIndex + 1) % testimonials.length);
-                }, 5000); // Changed to 5 seconds per testimonial
+                }, 5000);
                 return () => clearInterval(interval);
             }, [testimonials.length]);
 
@@ -296,7 +296,6 @@
                             <p className="mt-4 text-lg text-slate-600">Get from idea to published content faster than ever before. Our intuitive workflow makes creation feel effortless.</p>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-16 relative">
-                            {/* Dotted line for desktop */}
                             <div className="hidden md:block absolute top-1/2 left-0 w-full h-px -translate-y-1/2">
                                <svg width="100%" height="2"><line x1="0" y1="1" x2="100%" y2="1" stroke="#cbd5e1" strokeWidth="2" strokeDasharray="8 8"/></svg>
                             </div>
@@ -317,7 +316,6 @@
             );
         };
         
-        // --- NEW PRIVACY-FIRST SECTION ---
         const PrivacyFirstSection = () => {
             return (
                 <div className="py-20 md:py-32 px-8 gradient-bg">
@@ -331,6 +329,107 @@
                         <p className="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">
                             CreatorSuite is built privacy-first. All your data, from your brand voice to your generated content, is stored securely on your own device. No accounts, no logins, no cloud servers. Just you and your ideas.
                         </p>
+                    </div>
+                </div>
+            );
+        };
+
+        const PricingSection = () => {
+            const freeFeatures = [ "Access to 100+ AI Tools", "Personalized Brand Voice", "Standard AI Models" ];
+            const proFeatures = [ "Team Collaboration", "Unlimited Usage", "Premium AI Models", "Priority Support" ];
+
+            return (
+                <div className="py-20 md:py-32 px-8">
+                    <div className="max-w-6xl mx-auto">
+                        <div className="text-center mb-16 max-w-3xl mx-auto">
+                            <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tighter">Simple, Transparent Pricing</h2>
+                            <p className="mt-4 text-lg text-slate-600">Start creating for free, forever. Upgrade when you're ready to take your content to the next level.</p>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                            {/* Free Plan */}
+                            <div className="bg-slate-50/80 border border-slate-200/60 rounded-2xl p-8 text-center flex flex-col">
+                                <h3 className="text-2xl font-bold text-slate-800">Creator</h3>
+                                <p className="text-5xl font-extrabold text-slate-900 mt-4">$0</p>
+                                <p className="text-slate-500 mt-2">No credit card required</p>
+                                <ul className="mt-8 space-y-3 text-left flex-grow">
+                                    {freeFeatures.map(feature => (
+                                        <li key={feature} className="flex items-center space-x-3">
+                                            <Icon name="check-circle-2" className="w-5 h-5 text-indigo-500 flex-shrink-0" />
+                                            <span className="text-slate-600">{feature}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                                <a href="./app.html" className="mt-8 w-full block bg-slate-900 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-600 transition-colors text-lg">
+                                    Start for Free
+                                </a>
+                            </div>
+
+                            {/* Pro Plan */}
+                            <div className="bg-slate-50/80 border border-slate-200/60 rounded-2xl p-8 text-center flex flex-col">
+                                <h3 className="text-2xl font-bold text-slate-800">Pro</h3>
+                                <p className="text-5xl font-extrabold text-slate-900 mt-4">Soon</p>
+                                <p className="text-slate-500 mt-2">For professionals & teams</p>
+                                <ul className="mt-8 space-y-3 text-left flex-grow">
+                                    {proFeatures.map(feature => (
+                                        <li key={feature} className="flex items-center space-x-3">
+                                            <Icon name="sparkle" className="w-5 h-5 text-indigo-500 flex-shrink-0" />
+                                            <span className="text-slate-600">{feature}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                                <a href="#" className="mt-8 w-full block cta-gradient-bg text-white font-bold py-3 px-6 rounded-lg hover:opacity-90 transition-opacity text-lg">
+                                    Join the Waitlist
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+        
+        const UseCasesSection = () => {
+            const useCases = [
+                { icon: 'youtube', title: 'For YouTubers', description: 'Go from idea to script to SEO-optimized description in minutes.' },
+                { icon: 'file-text', title: 'For Bloggers', description: 'Conquer writer\'s block and craft perfect articles that rank.' },
+                { icon: 'users', title: 'For Social Media Managers', description: 'Generate a month\'s worth of content for every platform.' },
+                { icon: 'mic', title: 'For Podcasters', description: 'Brainstorm topics, outline episodes, and write compelling show notes.' }
+            ];
+
+            return (
+                <div className="py-20 md:py-32 px-8 gradient-bg">
+                    <div className="max-w-7xl mx-auto">
+                        <div className="text-center mb-16 max-w-3xl mx-auto">
+                            <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tighter">Built for Every Kind of Creator</h2>
+                            <p className="mt-4 text-lg text-slate-600">Whether you're a vlogger, writer, or social media guru, CreatorSuite has the specialized tools to fit your unique workflow.</p>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                            {useCases.map(useCase => (
+                                <div key={useCase.title} className="bg-white p-6 rounded-2xl border border-slate-200/80 text-center">
+                                    <div className="mb-4 inline-block bg-indigo-100 text-indigo-600 w-14 h-14 rounded-full flex items-center justify-center">
+                                        <Icon name={useCase.icon} className="w-7 h-7" />
+                                    </div>
+                                    <h3 className="text-lg font-bold text-slate-800 mb-2">{useCase.title}</h3>
+                                    <p className="text-slate-500 text-sm">{useCase.description}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+        
+        // --- NEW FINAL CTA SECTION ---
+        const FinalCTASection = () => {
+            return (
+                <div className="py-20 md:py-32 px-8">
+                    <div className="cta-gradient-bg rounded-2xl max-w-6xl mx-auto text-center p-12 md:p-20">
+                        <h2 className="text-4xl md:text-5xl font-extrabold text-white tracking-tighter">Ready to 10x Your Creativity?</h2>
+                        <p className="mt-4 text-lg text-indigo-100 max-w-2xl mx-auto">
+                           Stop juggling. Start creating. Join thousands of creators who have streamlined their workflow with CreatorSuite.
+                        </p>
+                        <a href="./app.html" className="mt-8 inline-block bg-white text-indigo-600 font-bold py-4 px-8 rounded-lg hover:bg-slate-100 transition-colors text-lg">
+                            Launch the Suite for Free
+                        </a>
                     </div>
                 </div>
             );
@@ -393,32 +492,24 @@
                         </div>
                     </div>
 
-                    <AnimatedSection className="py-20 md:py-32 px-8 gradient-bg">
-                        <div className="max-w-5xl mx-auto">
-                            <div className="text-center mb-16">
-                                <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tighter">Your Entire Workflow, <br/>In One App.</h2>
-                                <p className="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">Stop switching between a dozen different tools. CreatorSuite brings everything you need—from ideation to monetization—into one intelligent, seamless workspace.</p>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <FeatureCard icon="bot" title="All-in-One AI Toolkit" description="Access over 100 specialized tools for ideation, writing, SEO, and more, all in one place." />
-                                <FeatureCard icon="voicemail" title="Personalized Brand Voice" description="Define your unique tone and style once, and our AI will adapt every generation to sound just like you." />
-                                <FeatureCard icon="gamepad-2" title="Gamified Experience" description="Turn the creative grind into a rewarding journey. Earn XP, level up, and stay motivated every day." />
-                                <FeatureCard icon="workflow" title="Automated Workflows" description="Chain tools together into custom 'Stacks' to automate your personal content creation process from start to finish." />
-                            </div>
-                        </div>
-                    </AnimatedSection>
-
                     <AnimatedSection>
                         <HowItWorksSection />
+                    </AnimatedSection>
+                    
+                    <AnimatedSection>
+                        <UseCasesSection />
                     </AnimatedSection>
                     
                     <AnimatedSection>
                         <ToolsShowcaseSection />
                     </AnimatedSection>
                     
-                    {/* --- NEW SECTION INSERTED HERE --- */}
                     <AnimatedSection>
                         <PrivacyFirstSection />
+                    </AnimatedSection>
+                    
+                    <AnimatedSection>
+                        <PricingSection />
                     </AnimatedSection>
 
                     <AnimatedSection className="py-20 md:py-32 px-8">
@@ -428,8 +519,12 @@
                             <FAQItem question="What are 'Creator Stacks'?" answer="Creator Stacks are our version of automated workflows. You can chain multiple AI tools together to perform a sequence of tasks. For example, you could create a 'Stack' that first generates a video idea, then writes a script for it, suggests a title, and finally drafts a promotional tweet—all in one click."/>
                             <FAQItem question="Is CreatorSuite really free?" answer="Yes! Our core suite of over 100 tools is completely free to use. We believe everyone should have access to powerful creative tools. We plan to introduce an optional 'Pro' plan in the future with advanced features like team collaboration, unlimited usage, and access to premium AI models."/>
                             <FAQItem question="How does the 'My Voice' feature work?" answer="It's simple! You provide a few examples of your writing or describe your brand's tone, style, and target audience. This profile is saved securely in your browser. When you use a tool, we provide this context to the AI, ensuring the output is tailored to sound just like you, maintaining brand consistency."/>
-                            <FAQItem question="Is my data and content safe?" answer="Absolutely. We've built CreatorSuite to be 'stateless.' Your 'My Voice' profile, saved content, and progress are stored only on your local device using your browser's local storage. Your data never touches our servers, giving you complete privacy and control over your creative work."/>
+                            <FAQItem question="Is my data and content safe?" answer="Absolutely. We've built CreatorSuite to be 'stateless.' Your 'My Voice' profile, saved content, and progress are stored only on your local device using your browser's local storage. Your data never touches our servers, giving you a complete privacy and control over your creative work."/>
                          </div>
+                    </AnimatedSection>
+
+                    <AnimatedSection>
+                        <FinalCTASection />
                     </AnimatedSection>
 
                     <footer className="py-12 px-8 border-t border-slate-200">
